@@ -1,25 +1,29 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.core.config import settings
 
-client: AsyncIOMotorClient | None = None
-db = None
+MONGO_URI = settings.MONGO_URI
+
+client: AsyncIOMotorClient = None
+database = None
 
 async def connect_to_mongo():
-    global client,db
-
+    global client, database
     try:
-        client = AsyncIOMotorClient(settings.MONGO_URI)
-        db = client.get_default_database()
-
-        await client.admin.command('ping')
-        print("Connected to MongoDB")
+        client = AsyncIOMotorClient(MONGO_URI)
+        await client.admin.command("ping")
+        database = client["SmartMealPlanner"]
+        print("✅ Connected to MongoDB")
     except Exception as e:
-        print(f"Error connecting to MongoDB: {e}")
-        raise e
-
+        print("❌ MongoDB connection failed:", e)
+        database = None
 
 async def close_mongo_connection():
-
+    global client
     if client:
         client.close()
-        print("MongoDB connection closed")
+        print("🔌 MongoDB connection closed")
+
+def get_db():
+    global database
+    
+    return database
