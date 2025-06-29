@@ -83,6 +83,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "height_cm": details.get("height_cm") if details else None,
         "weight_kg": details.get("weight_kg") if details else None,
         "goal": details.get("goal") if details else None,
+        "calorie_target": details.get("calorie_target") if details else None
         
         
     }

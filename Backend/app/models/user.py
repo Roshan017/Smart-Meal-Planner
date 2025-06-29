@@ -36,6 +36,7 @@ class UserPublic(BaseModel):
     height_cm: Optional[int] = None
     weight_kg: Optional[int] = None
     goal: Optional[str]  = None
+    calorie_target: Optional[float] = None
    
 class UserDetails(BaseModel):
     age: int = Field(..., ge=10, le = 100)
@@ -45,4 +46,7 @@ class UserDetails(BaseModel):
     activity_level: Literal["sedentary", "light", "moderate", "active", "very_active"]
     goal: Literal["Maintain", "Lose-Weight", "Gain-Weight"]
     dietary_preferences: Optional[str] = None
+    bmr: Optional[float] = None
+    tdee: Optional[float] = None
+    calorie_target: Optional[float] = None
     
