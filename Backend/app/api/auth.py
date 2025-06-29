@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from app.models.user import UserCreate, UserLogin, UserInDB, UserPublic
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import hash_password, verify_password, create_access_token, get_current_user
 from app.db.client import get_db
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -64,4 +64,12 @@ async def signin(login_data: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
         }
 
             
+    }
+@router.get("/me", response_model=UserPublic)
+async def get_me(current_user: dict = Depends(get_current_user)):
+    
+    return {
+        "id": str(current_user["_id"]),
+        "username": current_user["username"]
+        
     }

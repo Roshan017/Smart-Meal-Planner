@@ -30,4 +30,5 @@ class UserLogin(BaseModel):
 class UserPublic(BaseModel):
     id: Optional[str]
     username: str
-    email: EmailStr
+   
+    
