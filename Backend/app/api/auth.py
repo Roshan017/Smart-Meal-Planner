@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from app.models.user import UserCreate, UserLogin, UserInDB, UserPublic
+from app.models.user import UserCreate, UserLogin, UserInDB, UserPublic, UserDetails
 from app.core.security import hash_password, verify_password, create_access_token, get_current_user
 from app.db.client import get_db
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -67,9 +67,22 @@ async def signin(login_data: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
     }
 @router.get("/me", response_model=UserPublic)
 async def get_me(current_user: dict = Depends(get_current_user)):
+
+    db = get_db()
+
+    user_id = ObjectId(current_user["_id"])
+
+    details = await db['user_details'].find_one({"user_id": user_id})
     
     return {
         "id": str(current_user["_id"]),
-        "username": current_user["username"]
+        "username": current_user["username"],
+        "email": current_user.get("email") if current_user else None,
+        "age": details.get("age") if details else None,
+        "gender": details.get("gender") if details else None,
+        "height_cm": details.get("height_cm") if details else None,
+        "weight_kg": details.get("weight_kg") if details else None,
+        "goal": details.get("goal") if details else None,
+        
         
     }

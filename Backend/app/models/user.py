@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, Literal
 from bson import ObjectId
 from datetime import datetime
 
@@ -30,5 +30,19 @@ class UserLogin(BaseModel):
 class UserPublic(BaseModel):
     id: Optional[str]
     username: str
+    email: Optional[EmailStr] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    height_cm: Optional[int] = None
+    weight_kg: Optional[int] = None
+    goal: Optional[str]  = None
    
+class UserDetails(BaseModel):
+    age: int = Field(..., ge=10, le = 100)
+    gender: Literal["male", "Female", "Other"]
+    height_cm: int = Field(..., gt=100)
+    weight_kg: int = Field(...,gt = 5)
+    activity_level: Literal["sedentary", "light", "moderate", "active", "very_active"]
+    goal: Literal["Maintain", "Lose-Weight", "Gain-Weight"]
+    dietary_preferences: Optional[str] = None
     
