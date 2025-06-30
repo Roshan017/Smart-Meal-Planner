@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.api import auth, details
+from app.api import auth, details, meals
 from app.db.client import connect_to_mongo, close_mongo_connection
 
 @asynccontextmanager
@@ -14,3 +14,6 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router, prefix="/api/auth")
 
 app.include_router(details.router, prefix="/api")
+
+app.include_router(meals.router, prefix="/api/meals")
+
