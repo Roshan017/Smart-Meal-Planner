@@ -10,9 +10,8 @@ from app.services.spoonacular import get_meal_plan, get_meal_details_id
 router = APIRouter()
 
 @router.get("/generate-meal-plan")
-async def generate_meal_plam(current_user: dict = Depends(get_current_user)):
+async def generate_meal_plan(current_user: dict = Depends(get_current_user)):
     db = get_db()
-
     user_id = ObjectId(current_user["_id"])
 
     prefs = await db["user_details"].find_one({"user_id": user_id})
@@ -22,39 +21,22 @@ async def generate_meal_plam(current_user: dict = Depends(get_current_user)):
             status_code=400,
             detail="User preferences not found. Please set your preferences first."
         )
-    res = await get_meal_plan(
-        calories=prefs.get("calorie_target",2000),
-        diet=prefs.get("dietary_preferences", None)
-    )
 
-    weekly_plan = []
+    calorie_target = prefs.get("calorie_target", 2000)
+    diet = prefs.get("dietary_preferences", None)
 
-    for day,info in res.get("week",{}).items():
-        meals = [
-            {
-                "id": meal["id"],
-                "title": meal["title"],
-                "image": meal["image"]
-            }
-            
-            for meal in info.get("meals",[])
-        ]
+    res = await get_meal_plan(calorie_target=calorie_target, diet=diet)
 
-        nutrients = info.get("nutrients",{})
+    if "error" in res:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch meals"
+        )
 
-        weekly_plan.append({
-            "day": day.capitalize(),
-            "meals": meals,
-            "nutrients":{
-                "calories": round(nutrients.get("calories", 0), 2),
-                "protein": round(nutrients.get("protein", 0), 2),
-                "fat": round(nutrients.get("fat", 0), 2),
-                "carbohydrates": round(nutrients.get("carbohydrates", 0), 2)
-                
-            }
-        })
-        print(f"Generated meal plan for user: {current_user['username']}")
-    return weekly_plan
+    
+
+    print(f"Fetched {len(res)} meals for user: {current_user['username']}")
+    return res
 
 @router.get("/{meal_id}")
 async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current_user)):
