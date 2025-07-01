@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, Literal
+from typing import Optional, Literal, List, Dict, Union
 from bson import ObjectId
 from datetime import datetime
 
@@ -37,6 +37,8 @@ class UserPublic(BaseModel):
     weight_kg: Optional[int] = None
     goal: Optional[str]  = None
     calorie_target: Optional[float] = None
+    selected_meals: Optional[List[Dict[str, Union[int, str, float]]]] = []
+    cal_remaining: Optional[int] = None
    
 class UserDetails(BaseModel):
     age: int = Field(..., ge=10, le = 100)

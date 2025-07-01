@@ -7,7 +7,7 @@ BASE_URL_SEARCH = "https://api.spoonacular.com/recipes/complexSearch"
 info_bulk_url = "https://api.spoonacular.com/recipes/informationBulk"
 
 
-async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 10):
+async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 20):
     try:
         params = {
             "apiKey": API_KEY,
@@ -60,7 +60,8 @@ async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 1
                     "id": recipe["id"],
                     "title": recipe["title"],
                     "image": recipe["image"],
-                    "macros": macros
+                    "macros": macros,
+                    "dish_type": recipe["dishTypes"][:3]
                 })
         print("Recipe Modified")
         return result
