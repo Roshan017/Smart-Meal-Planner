@@ -72,7 +72,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
     details = await db['user_details'].find_one({"user_id": user_id})
 
-    # Clear day_plan if more than 24 hours have passed
+    
     from datetime import datetime, timezone
 
     now = datetime.now(timezone.utc)
