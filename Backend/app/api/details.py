@@ -40,7 +40,7 @@ async def set_user_details(prefs: UserDetails, current_user: dict = Depends(get_
 
     bmr = calculate_bmr(prefs.weight_kg, prefs.height_cm,prefs.age,prefs.gender)
     tdee = bmr * activity_multiplier(prefs.activity_level)
-    calorie_target = adjust_calories(tdee, prefs.goal)
+    calorie_target = round(adjust_calories(tdee, prefs.goal))
 
     data = prefs.model_dump()
 

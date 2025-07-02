@@ -1,33 +1,19 @@
 from fastapi import APIRouter, Depends,HTTPException, status
 from app.core.security import get_current_user
 from app.db.client import get_db
-from app.services.spoonacular import get_meal_plan, get_meal_details_id
+from app.services.spoonacular import get_meal_plan, get_meal_details_id, get_weekly_plan
 from app.functions.meals_functions import get_details
-
-
+from datetime import datetime,timezone
+from typing import Optional, Literal, List, Dict, Any
+from pydantic import BaseModel, Field
 router = APIRouter()
 
 
 @router.post("/add-meal")
 async def add_meal_to_plan(meal_id:int, current_user: dict= Depends(get_current_user)):
     db = get_db()
-    """
-    user_id = ObjectId(current_user["_id"])
-
-    prefs = await db["user_details"].find_one({"user_id": user_id})
-
-    if not prefs:
-        raise HTTPException(
-            status_code=400,
-            detail="User preferences not found. Please set your preferences first."
-        )
-    calorie_target = prefs.get("calorie_target", 2000)
-     selected_meals = prefs.get("selected_meals", [])
-    """
-    user_id, prefs, calorie_target,selected_meals = await get_details(current_user=current_user, db=db)
-
     
-
+    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
     if any(meal["id"] == meal_id for meal in selected_meals):
         raise HTTPException(status_code=409, detail="Meal already added to plan.")
 
@@ -66,36 +52,19 @@ async def add_meal_to_plan(meal_id:int, current_user: dict= Depends(get_current_
         {"user_id": user_id},
         {
             "$push": {"selected_meals": meal_entry},
-            "$set": {"cal_remaining": cal_remaining}
+            "$set": {"cal_remaining": round(cal_remaining)}
         }
+
     )
     return {
         "message": "Meal added successfully.",
         "calories_used": round(total_calories, 2),
         "calories_remaining": round(calorie_target - total_calories, 2)
-       
-    }
-
+}
 @router.delete("/remove-meal/{meal_id}")
 async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_current_user)):
     db = get_db()
-    """
-    user_id = ObjectId(current_user["_id"])
-
-    prefs = await db["user_details"].find_one({"user_id": user_id})
-
-    if not prefs:
-        raise HTTPException(
-            status_code=400,
-            detail="User preferences not found. Please set your preferences first."
-        )
-    calorie_target = prefs.get("calorie_target", 2000)
-     selected_meals = prefs.get("selected_meals", [])
-    """
-    user_id, prefs, calorie_target, selected_meals = await get_details(current_user=current_user, db=db)
-
-   
-
+    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
     meal_to_remove = next((meal for meal in selected_meals if meal["id"]== meal_id), None )
 
     if not meal_to_remove:
@@ -108,6 +77,7 @@ async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_cur
     calories_used = sum(m["calories"] for m in updated_meals)
 
     cal_remaining = calorie_target - calories_used
+    
 
     await db["user_details"].update_one(
         {"user_id": user_id},
@@ -128,24 +98,7 @@ async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_cur
 @router.get("/generate-meal-plan")
 async def generate_meal_plan(current_user: dict = Depends(get_current_user)):
     db = get_db()
-    """
-    user_id = ObjectId(current_user["_id"])
-
-    prefs = await db["user_details"].find_one({"user_id": user_id})
-
-    if not prefs:
-        raise HTTPException(
-            status_code=400,
-            detail="User preferences not found. Please set your preferences first."
-        )
-
-    calorie_target = prefs.get("calorie_target", 2000)
-     diet = prefs.get("dietary_preferences", None)
-    """
-    user_id, prefs, calorie_target , diet = await get_details(current_user=current_user, db=db)
-
-   
-
+    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
     res = await get_meal_plan(calorie_target=calorie_target, diet=diet)
 
     if "error" in res:
@@ -158,6 +111,68 @@ async def generate_meal_plan(current_user: dict = Depends(get_current_user)):
 
     print(f"Fetched {len(res)} meals for user: {current_user['username']}")
     return res
+
+
+
+@router.get("/smart-plan")
+async def weekly_plan(time_frame: str = "day",current_user : dict= Depends(get_current_user)):
+    db = get_db()
+    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+
+    res = await get_weekly_plan(calorie_target = calorie_target, diet = diet, timeFrame=time_frame)
+    if time_frame not in ["day", "week"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Select Valid TimeFrame i.e day or week"
+        )
+    if "error" in res:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch meals"
+        )
+    return res
+
+class SmartPlanRequest(BaseModel):
+    time_frame: Literal["day", "week"]
+    meals: Optional[List[Dict]] = Field(default_factory=list)  # for daily plan
+    week: Optional[Dict[str, Dict[str, Any]]] = None  
+
+@router.post("/store-smart-plan")
+async def store_smart_plan(
+    request: SmartPlanRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_db()
+    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+
+    if request.time_frame not in ["day", "week"]:
+        raise HTTPException(status_code=400, detail="Select Valid Plan i.e day or week")
+
+    update = {}
+
+    if request.time_frame == "day":
+        update = {
+            "$set": {
+                "day_plan": request.meals,
+                "day_plan_generated_at": datetime.now(timezone.utc)
+            }
+        }
+    else:
+        update = {
+            "$set": {
+                "week_plan":  request.week  # optional: truncate manually if needed
+            }
+        }
+
+    await db["user_details"].update_one({"user_id": user_id}, update)
+
+    return {"message": f"{request.time_frame.capitalize()} Smart Plan saved."}
+
+        
+
+
+
+
 
 @router.get("/{meal_id}")
 async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current_user)):
@@ -197,6 +212,3 @@ async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current
         "instructions": steps if steps else meal.get("instructions", ""),
         "sourceUrl": meal.get("sourceUrl")
     }
-
-    
-

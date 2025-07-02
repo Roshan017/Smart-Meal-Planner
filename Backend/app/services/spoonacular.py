@@ -5,9 +5,30 @@ API_KEY = settings.SPOONACULAR_API_KEY
 
 BASE_URL_SEARCH = "https://api.spoonacular.com/recipes/complexSearch"
 info_bulk_url = "https://api.spoonacular.com/recipes/informationBulk"
+Week_url = "https://api.spoonacular.com/mealplanner/generate"
 
 
-async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 20):
+async def get_weekly_plan(calorie_target: float, diet: str = None, timeFrame: str = None):
+    try:
+        params = {
+            "apiKey": API_KEY,
+            "timeFrame": timeFrame,
+            "targetCalories": calorie_target,
+        }
+        if diet:
+            params["diet"] = diet
+
+        async with httpx.AsyncClient() as client:
+            res = await client.get(Week_url, params=params)
+            res.raise_for_status()
+            return res.json()
+
+    except httpx.HTTPStatusError as e:
+        print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+        return {"error": "Failed to fetch meals. Please try again later."}
+
+
+async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 10):
     try:
         params = {
             "apiKey": API_KEY,

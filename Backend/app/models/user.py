@@ -38,7 +38,11 @@ class UserPublic(BaseModel):
     goal: Optional[str]  = None
     calorie_target: Optional[float] = None
     selected_meals: Optional[List[Dict[str, Union[int, str, float]]]] = []
-    cal_remaining: Optional[int] = None
+    cal_remaining: Optional[float] = None
+    day_plan: Optional[List[Dict]] = Field(default_factory=list)
+    day_plan_generated_at: Optional[datetime] = None
+    week_plan: Optional[Dict[str, Dict]] = Field(default_factory=dict)
+
    
 class UserDetails(BaseModel):
     age: int = Field(..., ge=10, le = 100)
@@ -51,4 +55,8 @@ class UserDetails(BaseModel):
     bmr: Optional[float] = None
     tdee: Optional[float] = None
     calorie_target: Optional[float] = None
+    day_plan: Optional[List[Dict]] = Field(default_factory=list)
+    day_plan_generated_at: Optional[datetime] = None
+    week_plan: Optional[List[Dict]] = Field(default_factory=list)
+
     
