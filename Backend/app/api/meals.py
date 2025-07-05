@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends,HTTPException, status
 from app.core.security import get_current_user
 from app.db.client import get_db
-from app.services.spoonacular import get_meal_plan, get_meal_details_id, get_weekly_plan
+from app.services.spoonacular import get_meal_plan, get_meal_details_id, get_weekly_plan, SearchMeals
 from app.functions.meals_functions import get_details
 from datetime import datetime,timezone
 from typing import Optional, Literal, List, Dict, Any
@@ -168,7 +168,11 @@ async def store_smart_plan(
 
     return {"message": f"{request.time_frame.capitalize()} Smart Plan saved."}
 
-        
+
+@router.get("/search-meals")
+async def search_meals(title: str):
+    res = await SearchMeals(title=title)
+    return res
 
 
 
