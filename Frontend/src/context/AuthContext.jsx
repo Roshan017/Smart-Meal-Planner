@@ -20,10 +20,15 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setIsAuthenticated(true);
         return true;
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
       }
-      return false;
     } catch (e) {
       console.error("Error checking authenticated user:", e);
+      setIsAuthenticated(false);
+      setUser(null);
       return false;
     } finally {
       setLoading(false);
@@ -35,28 +40,32 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
 
       const token = localStorage.getItem("token");
-      const publicRoutes = ['/login', '/signin'];
+      const publicRoutes = ['/login', '/signup', '/search'];
 
-      if (publicRoutes.includes(location.pathname)) {
+      const isPublicRoute = publicRoutes.includes(location.pathname);
+
+      if (isPublicRoute) {
         if (token) {
           const isAuth = await checkAuthUser();
           if (isAuth) {
-            navigate('/dashboard'); // ✅ Auto-navigate to dashboard
+            navigate('/dashboard'); // Redirect if already logged in
           }
-        } else {
-          setLoading(false);
         }
+        setLoading(false);
         return;
       }
 
+      // For protected routes
       const isAuth = await checkAuthUser();
       if (!isAuth) {
-        navigate('/login');
+        navigate('/'); // Redirect to login
+      } else {
+        setLoading(false);
       }
     };
 
     validate();
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, isAuthenticated]); // ✅ Re-run on auth state change
 
   return (
     <AuthContext.Provider value={{ user, setUser, loading, isAuthenticated, checkAuthUser }}>

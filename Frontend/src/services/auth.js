@@ -3,9 +3,9 @@ import api from "./api";
 export const loginuser = async (cred) => {
   try {
     const res = await api.post('/auth/signin', cred);
-    console.log("User logged in successfully:", res.data);
+    console.log("User logged in successfully");
 
-    const { access_token } = res.data;
+    const { access_token } = res.data
     if (access_token) {
       localStorage.setItem("token", access_token); // ✅ Save token
     }
@@ -17,19 +17,30 @@ export const loginuser = async (cred) => {
   }
 };
 
-export const getCurrentUserApi = async () => {
-  const token = localStorage.getItem("token"); // ✅ Get token
-  if (!token) {
-    throw new Error("No token found");
-  }
-
+export const signupuser = async (cred) => {
   try {
-    const res = await api.get('/auth/me', {
-      headers: {
-        Authorization: `Bearer ${token}`, // ✅ Send token in header
-      },
-    });
-    console.log("Current user data:", res.data);
+    const res = await api.post('/auth/signup', cred);
+    console.log("User signed up successfully");
+    const { access_token } = res.data;
+
+    if (access_token) {
+      localStorage.setItem("token", access_token); // ✅ Save token
+    }
+
+    return res.data;
+  } catch (e) {
+    if (e.response && e.response.status === 400) {
+      throw new Error(e.response.data.detail || "User already exists");
+    }
+    console.error("Error signing up user:", e);
+    throw new Error("Something went wrong during signup");
+  }
+};
+
+
+export const getCurrentUserApi = async () => {
+  try {
+    const res = await api.get('/auth/me');
     return res.data;
   } catch (error) {
     console.error("Error fetching current user:", error);

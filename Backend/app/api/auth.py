@@ -11,20 +11,21 @@ router = APIRouter()
 
 
 
-@router.post("/signup", response_model=UserPublic)
-async def signup(user_data: UserCreate):
-   
-    db = get_db()
+
+@router.post("/signup")
+async def signup(user_data: UserCreate, db: AsyncIOMotorDatabase = Depends(get_db)):
     users_collection = db['users']
+
+    # Check if user already exists
     existing_user = await users_collection.find_one({"email": user_data.email})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    
-    hashed = hash_password(user_data.password)
 
+    # Hash password and insert
+    hashed = hash_password(user_data.password)
     new_user = {
         "username": user_data.username,
         "email": user_data.email,
@@ -34,11 +35,27 @@ async def signup(user_data: UserCreate):
 
     result = await users_collection.insert_one(new_user)
 
-    return UserPublic(
-        id = str(result.inserted_id),
-        username = new_user["username"],
-        email=new_user["email"]
-    )
+    # ✅ Fetch user after insert (important for consistency)
+    user = await users_collection.find_one({"_id": result.inserted_id})
+    
+    if not user:
+        raise HTTPException(status_code=500, detail="User creation failed.")
+
+    # ✅ Generate token
+    
+    access_token = create_access_token(data={"sub": str(user["_id"])})
+    
+
+    # ✅ Return complete response
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(user["_id"]),
+            "username": user["username"],
+            "email": user["email"]
+        }
+    }
 
 @router.post("/signin")
 async def signin(login_data: UserLogin, db: AsyncIOMotorDatabase = Depends(get_db)):
@@ -53,6 +70,8 @@ async def signin(login_data: UserLogin, db: AsyncIOMotorDatabase = Depends(get_d
         )
     
     access_token = create_access_token(data = {"sub": str(user["_id"])})
+    
+   
 
     return{
         "access_token": access_token,
@@ -72,10 +91,13 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
     details = await db['user_details'].find_one({"user_id": user_id})
 
-    
-    from datetime import datetime, timezone
+    # 🛡️ Fix: Handle new users without user_details
+    if not details:
+        details = {}
 
+    from datetime import datetime, timezone
     now = datetime.now(timezone.utc)
+
     day_plan = details.get("day_plan")
     day_plan_generated_at = details.get("day_plan_generated_at")
 
@@ -90,7 +112,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
             day_plan = []
             day_plan_generated_at = None
 
-    #print(details)
+    print("Me endpoint called for user:", current_user["username"])
 
     return {
         "id": str(current_user["_id"]),
@@ -106,6 +128,5 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "cal_remaining": details.get("cal_remaining"),
         "day_plan": day_plan,
         "day_plan_generated_at": day_plan_generated_at,
-        "week_plan": details.get("week_plan", {})  # <-- Include week plan here
+        "week_plan": details.get("week_plan") if isinstance(details.get("week_plan"), dict) else {}
     }
-

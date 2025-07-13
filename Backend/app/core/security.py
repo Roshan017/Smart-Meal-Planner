@@ -54,22 +54,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
         if user_id is None:
             raise HTTPException(
-                status_code= 401,
-                detail="Invalid Token Patload"
-
+                status_code=401,
+                detail="Invalid token payload"
             )
     except JWTError:
         raise HTTPException(
             status_code=401,
             detail="Token is invalid or has expired"
         )
-    
-    db = get_db()
+
+    db = get_db()  # ✅ No await
 
     user = await db["users"].find_one({"_id": ObjectId(user_id)})
     if user is None:
-        raise HTTPException(
-            status_code= 404,
-            detail="User not found"
-        )
+        raise HTTPException(status_code=404, detail="User not found")
+
     return user

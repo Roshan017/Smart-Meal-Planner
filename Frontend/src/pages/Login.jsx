@@ -90,7 +90,7 @@ const Login = () => {
 
               <p className="text-center text-sm text-[#5C5C7B] mt-6">
           Don’t have an account?{" "}
-          <a href="/signin" className="text-[#877EFF] hover:underline">Sign Up</a>
+          <a href="/signup" className="text-[#877EFF] hover:underline">Sign Up</a>
               </p>
             </div>
           </div>

@@ -2,8 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import './index.css';
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
-import Signin from "./pages/Signin";
+import Signup from "./pages/Signup";
 import Search from "./pages/Search";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -13,9 +14,9 @@ function App() {
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signin" element={<Signin />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/search" element={<Search />} />
 
         {/* Private Routes */}
