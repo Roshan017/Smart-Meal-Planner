@@ -1,13 +1,13 @@
-/* eslint-disable no-unused-vars */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { SigninValidation } from "../lib/validation";
 import { loginuser } from "../services/auth";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import Loader from "../components/Shared/Loader";
+import ShinyText from "../components/ui/ShinyText";
 
 const Login = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -15,9 +15,10 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
   const { checkAuthUser } = useAuth();
   const navigate = useNavigate();
+
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
   const onSubmit = async (data) => {
     try {
@@ -41,67 +42,76 @@ const Login = () => {
   };
 
   return (
-    <section className="flex h-screen bg-[#000000] text-white">
-  {/* Left - Login Form */}
-  <div className="w-full md:w-[50%] flex justify-center items-center">
-    <div className="w-[90%] sm:w-[400px] bg-[#09090A] p-8 rounded-lg shadow-lg">
-      <h1 className="h3-bold text-center mb-6">Login to your Account</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        {/* Email */}
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-white">Email</label>
-          <input
-            type="email"
-            id="email"
-            {...register("email")}
-            className="shad-input"
-            placeholder="Enter your email"
-            
-          />
-          {errors.email && (
-            <p className="shad-form_message">{errors.email.message}</p>
-          )}
-        </div>
+    <section className="relative flex h-screen fc-bg-primary text-white overflow-hidden">
+  {/* Fullscreen Background Image (hidden on mobile) */}
+  
+    <img
+      src="/images/BG.png"
+      alt="Background"
+      className="absolute inset-0 w-full h-full object-cover z-0"
+    />
+ 
 
-        
+  {/* Glass Blur Overlay */}
+  {!isMobile && <div className="bg-blurred z-10" />}
+
+  {/* Main Content */}
+  <div className="relative z-20 flex w-full h-full">
+    {/* Left Placeholder (no image now, as background is global) */}
+    <div className="hidden md:flex flex-col w-[45%] items-center justify-center h-full">
+  <h1 className="tagline"> <ShinyText text={`"Tell me what you eat,and I will tell you what you are."`}/></h1>
+  <p className="mt-4 text-sm md:text-base text-gray-100 font-light italic tracking-wide author">
+    — Jean Anthelme Brillat-Savarin
+  </p>
+</div>
+
+    {/* Right - Login Form */}
+    <div className="w-full md:w-[55%] flex justify-center items-center px-6">
+      <div className="w-full max-w-[480px] flex flex-col gap-2.5 fc-bg-card p-10 sm:p-12">
+        <h1 className="text-3xl font-bold text-center mb-6 text-black">
+          Welcome Back!
+        </h1>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-white">Password</label>
+            <label htmlFor="email" className="fc-form-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              {...register("email")}
+              className="fc-input"
+              placeholder="Enter your email"
+            />
+            {errors.email && <p className="fc-form-error">{errors.email.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="password" className="fc-form-label">Password</label>
             <input
               type="password"
               id="password"
               {...register("password")}
-              className="shad-input"
+              className="fc-input"
               placeholder="Enter your password"
             />
-            {errors.password && (
-              <p className="shad-form_message">{errors.password.message}</p>
+            {errors.password && <p className="fc-form-error">{errors.password.message}</p>}
+          </div>
+
+          <button type="submit" className="fc-button-primary">
+            {loading ? (
+              <div className="flex-center gap-2"><Loader /></div>
+            ) : (
+              "Login"
             )}
-          </div>
-
-          <button
-            type="submit"
-            className="shad-button_primary px-4 py-2 rounded-lg "
-          >
-            {
-              loading ? (<div className="flex-center gap-2"><Loader /></div>) : ("Login")
-            }
           </button>
-              </form>
+        </form>
 
-              <p className="text-center text-sm text-[#5C5C7B] mt-6">
+        <p className="text-center text-sm fc-text-muted mt-6">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-[#877EFF] hover:underline">Sign Up</a>
-              </p>
-            </div>
-          </div>
-
-          {/* Right - Image */}
-  <div className="hidden md:block w-[50%]">
-    <img
-      src="/assets/login-illustration.png" // Change to your actual image path
-      alt="Login Illustration"
-      className="w-full h-full object-cover"
-    />
+          <a href="/signup" className="fc-link">Sign Up</a>
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
