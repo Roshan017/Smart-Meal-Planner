@@ -44,6 +44,14 @@ const Signup = () => {
   return (
     <section className="relative flex h-screen fc-bg-primary text-white overflow-hidden">
       {/* Background image only on non-mobile */}
+
+      <div className={`absolute top-18 left-29 z-30 flex items-center gap-2 ${isMobile ? "bg-gray-50 p-1 h-100% rounded-2xl" : ""}`}>
+    <img
+      src="/images/Title.png" // replace with your actual file
+      alt="ForkCast Logo"
+      className="h-20 md:h-10 w-100%"
+    />
+  </div>
       
         <img
           src="/images/BG.png"
@@ -119,7 +127,7 @@ const Signup = () => {
               </button>
             </form>
 
-            <p className="text-center text-sm fc-text-muted mt-6">
+            <p className="text-center text-sm fc-text-muted mt-6 text-white">
               Already have an account?{" "}
               <a href="/login" className="fc-link">Sign In</a>
             </p>

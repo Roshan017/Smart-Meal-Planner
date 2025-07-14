@@ -44,6 +44,14 @@ const Login = () => {
   return (
     <section className="relative flex h-screen fc-bg-primary text-white overflow-hidden">
   {/* Fullscreen Background Image (hidden on mobile) */}
+
+     <div className={`absolute top-18 left-29 z-30 flex items-center gap-2 ${isMobile ? "bg-gray-50 p-1 h-100% rounded-2xl" : ""}`}>
+    <img
+      src="/images/Title.png" // replace with your actual file
+      alt="ForkCast Logo"
+      className="h-20 md:h-10 w-100%"
+    />
+  </div>
   
     <img
       src="/images/BG.png"
@@ -59,21 +67,21 @@ const Login = () => {
   <div className="relative z-20 flex w-full h-full">
     {/* Left Placeholder (no image now, as background is global) */}
     <div className="hidden md:flex flex-col w-[45%] items-center justify-center h-full">
-  <h1 className="tagline"> <ShinyText text={`"Tell me what you eat,and I will tell you what you are."`}/></h1>
+  <h1 className="tagline"> <ShinyText text={`"Tell me what you eat, and I will tell you what you are."`}/></h1>
   <p className="mt-4 text-sm md:text-base text-gray-100 font-light italic tracking-wide author">
     — Jean Anthelme Brillat-Savarin
   </p>
 </div>
 
     {/* Right - Login Form */}
-    <div className="w-full md:w-[55%] flex justify-center items-center px-6">
+    <div className="w-full md:w-[55%] flex justify-center items-center px-6 text-white">
       <div className="w-full max-w-[480px] flex flex-col gap-2.5 fc-bg-card p-10 sm:p-12">
         <h1 className="text-3xl font-bold text-center mb-6 text-black">
           Welcome Back!
         </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 text-white">
             <label htmlFor="email" className="fc-form-label">Email</label>
             <input
               type="email"
@@ -106,7 +114,7 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-center text-sm fc-text-muted mt-6">
+        <p className="text-center text-white text-sm fc-text-muted mt-6">
           Don’t have an account?{" "}
           <a href="/signup" className="fc-link">Sign Up</a>
         </p>

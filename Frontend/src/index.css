@@ -118,9 +118,10 @@
     @apply bg-[#c2e2c7]; /* Soft white */
   }
 
-  .fc-bg-card {
-    @apply bg-[#acf3b7] shadow-lg rounded-3xl;
-  }
+ .fc-bg-card {
+  @apply bg-green-200/20 backdrop-blur-md shadow-lg rounded-3xl border border-green-300/20;
+}
+
 
   .fc-text-main {
     @apply text-[#2E2E2E]; /* Deep charcoal */
@@ -146,7 +147,7 @@
   }
 
   .fc-form-label {
-    @apply text-[#2E2E2E] font-medium text-sm;
+    @apply text-[#ffffff] font-medium text-sm;
   }
 
   .fc-form-error {
@@ -187,19 +188,25 @@
 }
 
 .shiny-text {
-  color: #ffffff; /* Adjust this color to change intensity/style */
+  color: transparent;
   background: linear-gradient(
     120deg,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0) 60%
+    rgba(255, 255, 255, 0.1) 10%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.1) 90%
   );
-  background-size: 200% 100%;
+  background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   display: inline-block;
-  animation: shine 5s linear infinite;
+  animation: shine 7s linear infinite;
+
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.4),
+    0 0 10px rgba(255, 255, 255, 0.3); /* subtle glow for more depth */
 }
+
+
 
 @keyframes shine {
   0% {
