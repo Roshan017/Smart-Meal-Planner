@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
 
       const token = localStorage.getItem("token");
-      const publicRoutes = ['/login', '/signup', '/search'];
+      const publicRoutes = ['/login', '/signup','/search'];
 
       const isPublicRoute = publicRoutes.includes(location.pathname);
 
