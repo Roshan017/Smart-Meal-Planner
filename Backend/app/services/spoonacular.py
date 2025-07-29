@@ -12,31 +12,33 @@ async def SearchMeals(title: str):
         params = {
             "apiKey": API_KEY,
             "query": title,
-            "number": 1,
+            "number": 10,  
         }
 
         async with httpx.AsyncClient() as client:
             res = await client.get(BASE_URL_SEARCH, params=params)
             res.raise_for_status()
-            data =  res.json()
+            data = res.json()
 
         if not data["results"]:
             return {"error": "No meals found for the given title."}
 
-        meal = data["results"][0]
+        # Extract multiple meals
+        meals = [
+            {
+                "id": meal["id"],
+                "title": meal["title"],
+                "image": meal["image"]
+            }
+            for meal in data["results"]
+        ]
 
-        
+        return {"meals": meals}
 
-        
-        return {
-            "id": meal["id"],
-            "title": meal["title"],
-            "image": meal["image"],
-            
-        }
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
         return {"error": "Failed to fetch meals. Please try again later."}
+
 
 async def get_weekly_plan(calorie_target: float, diet: str = None, timeFrame: str = None):
     try:

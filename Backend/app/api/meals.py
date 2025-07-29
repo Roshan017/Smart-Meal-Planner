@@ -171,8 +171,7 @@ async def store_smart_plan(
 
 @router.get("/search-meals")
 async def search_meals(title: str):
-    res = await SearchMeals(title=title)
-    return res
+    return await SearchMeals(title=title)
 
 
 

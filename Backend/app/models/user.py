@@ -33,6 +33,7 @@ class UserPublic(BaseModel):
     email: Optional[EmailStr] = None
     age: Optional[int] = None
     gender: Optional[str] = None
+    activity_level: Optional[str] = None
     height_cm: Optional[int] = None
     weight_kg: Optional[int] = None
     goal: Optional[str]  = None
