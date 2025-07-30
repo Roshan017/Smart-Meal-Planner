@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMeal } from '../services/function';
+import { getMeal, addMeal } from '../services/function';
 import { ArrowLeft } from 'lucide-react';
+
 
 const MealDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [mealData, setMealData] = useState({});
   const [loading, setLoading] = useState(true);
+  
+
+  const handleClick = async () => {
+  try {
+    const res = await addMeal(id);
+    console.log(res);
+    navigate('/dashboard');
+  } catch (e) {
+    
+    if (e.response && e.response.status === 400) {
+      alert("Adding this meal exceeds your calorie target");
+    } else {
+      console.error('Error adding meal:', e);
+    }
+  }
+};
+
 
   useEffect(() => {
     const fetchMeal = async () => {
@@ -48,10 +66,18 @@ const MealDetail = () => {
         />
 
         <div className="p-8">
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-            {mealData.title}
-          </h1>
+          {/* Title + Add Button */}
+          <div className="flex flex-row justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 text-center">
+              {mealData.title}
+            </h1>
+            <button
+              onClick={handleClick}
+              className="cursor-pointer bg-green-500 hover:bg-green-600 text-white font-medium rounded-2xl py-2 px-6 shadow transition duration-300"
+            >
+              Add Meal
+            </button>
+          </div>
 
           {/* Preparation Section */}
           <section className="mb-8">
@@ -74,14 +100,56 @@ const MealDetail = () => {
                     {mealData.vegetarian ? 'Yes' : 'No'}
                   </td>
                 </tr>
+                <tr>
+                  <td className="py-2 font-medium">Source</td>
+                  <td className="py-2 text-right">
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-500 hover:underline"
+                      href={mealData.sourceUrl}
+                    >
+                      {mealData.title}
+                    </a>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </section>
 
           {/* Nutrition Section */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Nutrition</h2>
-            <p className="text-gray-600">Calories: {mealData.calories}</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Nutrition</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="flex flex-col items-center bg-white shadow rounded-xl p-4 border hover:shadow-md transition">
+                <span className="text-2xl">🔥</span>
+                <p className="text-gray-600 font-medium">Calories</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {mealData.macros?.calories ?? 0}
+                </p>
+              </div>
+              <div className="flex flex-col items-center bg-white shadow rounded-xl p-4 border hover:shadow-md transition">
+                <span className="text-2xl">🍞</span>
+                <p className="text-gray-600 font-medium">Carbs</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {mealData.macros?.carbohydrates ?? 0} g
+                </p>
+              </div>
+              <div className="flex flex-col items-center bg-white shadow rounded-xl p-4 border hover:shadow-md transition">
+                <span className="text-2xl">🍗</span>
+                <p className="text-gray-600 font-medium">Protein</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {mealData.macros?.protein ?? 0} g
+                </p>
+              </div>
+              <div className="flex flex-col items-center bg-white shadow rounded-xl p-4 border hover:shadow-md transition">
+                <span className="text-2xl">🥑</span>
+                <p className="text-gray-600 font-medium">Fats</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {mealData.macros?.fat ?? 0} g
+                </p>
+              </div>
+            </div>
           </section>
 
           {/* Ingredients Section */}
@@ -105,9 +173,9 @@ const MealDetail = () => {
               Instructions
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-gray-600">
-              {mealData.instructions?.map((step, idx) => (
-                <li key={idx}>{step}</li>
-              ))}
+              {Array.isArray(mealData.instructions)
+                ? mealData.instructions.map((step, idx) => <li key={idx}>{step}</li>)
+                : <li>{mealData.instructions}</li>}
             </ol>
           </section>
         </div>

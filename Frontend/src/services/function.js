@@ -15,7 +15,7 @@ export const searchMeals = async (val) => {
 
 export const getMeal = async(id) =>{
     try{
-        const res = await api.get(`/meals/${id}`);  // use path param
+        const res = await api.get(`/meals/${id}`);  
     console.log('Meal Details');
     return res;
        
@@ -24,4 +24,28 @@ export const getMeal = async(id) =>{
         console.error(e);
         throw e
     }
+}
+
+export const addMeal = async (id) => {
+  try {
+    const res = await api.post(`/meals/add-meal?meal_id=${id}`);
+    console.log('Meal Added');
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const deleteMeal = async(id) =>{
+  try{
+
+    const res = await api.delete(`/meals/remove-meal/${id}`)
+    console.log('Meal Deleted');
+    return res
+
+  }catch(e){
+     console.error(e);
+      throw e;
+  }
 }

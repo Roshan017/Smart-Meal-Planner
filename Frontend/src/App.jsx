@@ -7,6 +7,8 @@ import Search from "./pages/Search";
 import Home from "./pages/Home";
 import HomeSearch from "./pages/HomeSearch";
 import MealDetail from "./pages/MealDetail";
+import Profile from "./pages/Profile";
+
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
 
         {/* Private Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/usersearch" element={<Search />} />
         <Route path="/meal/:id" element={<MealDetail />} /> 
       </Routes>

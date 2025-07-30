@@ -1,21 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { getCurrentUserApi } from "../services/auth";
 import { Progress } from "../components/ui/progress";
+import { deleteMeal } from "../services/function";
+import { Trash, Plus } from "lucide-react";
+import BottomBar from "../components/Shared/BottomBar";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
-import { Plus } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import Header from "../components/Shared/Header";
+
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const nav = useNavigate()
+  const nav = useNavigate();
+
+  const deleteMealHandler = async (id) => {
+    try {
+      const mealToDelete = user.selected_meals.find((meal) => meal.id === id);
+      if (!mealToDelete) return;
+
+      await deleteMeal(id);
+
+      // Remove meal and recalculate calories locally
+      setUser((prev) => {
+        const updatedMeals = prev.selected_meals.filter((meal) => meal.id !== id);
+        const caloriesUsed = updatedMeals.reduce((sum, m) => sum + m.calories, 0);
+        const updatedCalRemaining = prev.calorie_target - caloriesUsed;
+
+        return {
+          ...prev,
+          selected_meals: updatedMeals,
+          cal_remaining: updatedCalRemaining,
+        };
+      });
+
+      console.log(`Meal ${id} deleted`);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await getCurrentUserApi();
         setUser(userData);
-        
       } catch (error) {
         console.error("Failed to fetch user:", error);
       }
@@ -38,7 +72,7 @@ const Dashboard = () => {
   return (
     <div className="p-6 text-gray-800">
       {/* HEADER */}
-      <h1 className="text-3xl font-bold mb-4">Welcome, {user.username || user.email}!</h1>
+      <Header/>
 
       {/* SUMMARY CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -71,35 +105,55 @@ const Dashboard = () => {
       </div>
 
       {/* TODAY'S MEALS */}
-      {user.selected_meals && user.selected_meals.length > 0 && (
-  <div className="bg-white p-6 rounded-lg shadow mb-8">
-    <h2 className="text-lg font-semibold mb-4">Today's Selected Meals</h2>
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-lg font-semibold mb-4">Today's Selected Meals</h2>
 
-    <div className="flex gap-4 overflow-x-auto pb-2">
-      {/* Meals */}
-      {user.selected_meals.map((meal, index) => (
-        <div
-          key={index}
-          className="rounded-lg border shadow hover:shadow-lg transition p-3 min-w-[220px] flex-shrink-0"
-        >
-          <img
-            src={meal.image}
-            alt={meal.title}
-            className="rounded-lg w-full h-40 object-cover mb-2"
-          />
-          <h3 className="font-semibold text-sm">{meal.title}</h3>
-          <p className="text-sm text-gray-600">{meal.calories} kcal</p>
-        </div>
-      ))}
+        {user.selected_meals.length > 0 ? (
+          <div className="flex gap-4 overflow-x-auto pb-2">
+            {user.selected_meals.map((meal) => (
+              <div
+                key={meal.id}
+                className="rounded-lg border shadow hover:shadow-lg transition p-3 min-w-[220px] flex-shrink-0"
+              >
+                <img
+                  src={meal.image}
+                  alt={meal.title}
+                  className="rounded-lg w-full h-40 object-cover mb-2"
+                />
+                <div className="flex justify-between items-center gap-4">
+                  <h3 className="font-semibold text-sm">{meal.title}</h3>
+                  <button
+                    onClick={() => deleteMealHandler(meal.id)}
+                    className="cursor-pointer text-red-300 hover:text-red-600 transition duration-300 w-10 h-12 p-4"
+                  >
+                    <Trash />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600">{meal.calories} kcal</p>
+              </div>
+            ))}
 
-      {/* Add Meals card (always last) */}
-      <div onClick={()=>nav('/usersearch')}  className="rounded-lg border-dashed border-2 flex flex-col justify-center items-center min-w-[220px] h-[200px] flex-shrink-0 hover:border-green-400 cursor-pointer relative top-3">
-        <Plus className="h-10 w-10 text-gray-400" />
-        <p className="mt-2 text-gray-500 text-sm">Add Meal</p>
+            {/* Add Meals card */}
+            <div
+              onClick={() => nav("/usersearch")}
+              className="rounded-lg border-dashed border-2 flex flex-col justify-center items-center min-w-[220px] h-[200px] flex-shrink-0 hover:border-green-400 cursor-pointer relative top-3"
+            >
+              <Plus className="h-10 w-10 text-gray-400" />
+              <p className="mt-2 text-gray-500 text-sm">Add Meal</p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-gray-500 flex flex-col items-center">
+            <p>No meals added today.</p>
+            <button
+              onClick={() => nav("/usersearch")}
+              className="mt-3 text-green-500 hover:underline"
+            >
+              Add a meal now
+            </button>
+          </div>
+        )}
       </div>
-    </div>
-  </div>
-)}
 
       {/* WEEKLY CHART */}
       <div className="bg-white p-6 rounded-lg shadow">
@@ -113,6 +167,7 @@ const Dashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <BottomBar/>
     </div>
   );
 };
