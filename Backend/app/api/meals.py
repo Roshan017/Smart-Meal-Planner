@@ -178,7 +178,7 @@ async def search_meals(title: str):
 
 
 @router.get("/{meal_id}")
-async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current_user)):
+async def get_meal_details(meal_id: int, current_user: dict = Depends(get_current_user)):
     meal = await get_meal_details_id(meal_id=meal_id)
 
     if "error" in meal:
@@ -187,23 +187,37 @@ async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current
             detail="Failed to fetch meal details. Please try again later."
         )
     
+    # Extract instructions
     steps = []
-
     if meal.get("analyzedInstructions"):
         steps = [
             step["step"] for instruction in meal["analyzedInstructions"]
             for step in instruction.get("steps", [])
         ]
+
+    # Extract macros (Calories, Protein, Fat, Carbohydrates)
+    nutrients = meal.get("nutrition", {}).get("nutrients", [])
+    calories = next((n["amount"] for n in nutrients if n["name"].lower() == "calories"), None)
+    protein = next((n["amount"] for n in nutrients if n["name"].lower() == "protein"), None)
+    fat = next((n["amount"] for n in nutrients if n["name"].lower() == "fat"), None)
+    carbs = next((n["amount"] for n in nutrients if n["name"].lower() == "carbohydrates"), None)
+
     print(f"Fetched details for meal ID: {meal_id}")
 
     return {
         "id": meal.get("id"),
         "title": meal.get("title"),
         "image": meal.get("image"),
+        "sourceUrl": meal.get("sourceUrl"),
         "readyInMinutes": meal.get("readyInMinutes"),
         "servings": meal.get("servings"),
         "vegetarian": meal.get("vegetarian"),
-        "calories": next((n["amount"] for n in meal.get("nutrition", {}).get("nutrients", []) if n["name"].lower() == "calories"),None),
+        "macros": {
+            "calories": calories,
+            "protein": protein,
+            "fat": fat,
+            "carbohydrates": carbs
+        },
         "ingredients": [
             {
                 "name": ing.get("name"),
@@ -212,6 +226,5 @@ async def get_meal_details(meal_id: int, current_user:dict = Depends(get_current
             }
             for ing in meal.get("extendedIngredients", [])
         ],
-        "instructions": steps if steps else meal.get("instructions", ""),
-        "sourceUrl": meal.get("sourceUrl")
+        "instructions": steps if steps else meal.get("instructions", "")
     }

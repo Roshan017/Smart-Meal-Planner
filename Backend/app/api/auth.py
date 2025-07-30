@@ -90,7 +90,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     user_id = ObjectId(current_user["_id"])
 
     details = await db['user_details'].find_one({"user_id": user_id})
-    print(details)
+    
 
     # 🛡️ Fix: Handle new users without user_details
     if not details:
