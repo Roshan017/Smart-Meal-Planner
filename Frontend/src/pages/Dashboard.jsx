@@ -28,8 +28,13 @@ const Dashboard = () => {
 
       // Remove meal and recalculate calories locally
       setUser((prev) => {
-        const updatedMeals = prev.selected_meals.filter((meal) => meal.id !== id);
-        const caloriesUsed = updatedMeals.reduce((sum, m) => sum + m.calories, 0);
+        const updatedMeals = prev.selected_meals.filter(
+          (meal) => meal.id !== id
+        );
+        const caloriesUsed = updatedMeals.reduce(
+          (sum, m) => sum + m.calories,
+          0
+        );
         const updatedCalRemaining = prev.calorie_target - caloriesUsed;
 
         return {
@@ -58,7 +63,7 @@ const Dashboard = () => {
   }, []);
 
   if (!user) return <div className="p-6">Loading...</div>;
-  console.log(user)
+  console.log(user);
 
   const consumed = user.calorie_target - user.cal_remaining;
   const weeklyData = Object.entries(user.week_plan).map(([day, data]) => ({
@@ -72,7 +77,7 @@ const Dashboard = () => {
   return (
     <div className="p-6 text-gray-800">
       {/* HEADER */}
-      <Header/>
+      <Header />
 
       {/* SUMMARY CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -167,7 +172,7 @@ const Dashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <BottomBar/>
+      <BottomBar />
     </div>
   );
 };
