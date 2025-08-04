@@ -354,3 +354,51 @@
     @apply bg-background text-foreground;
   }
 }
+.smooth-spacing {
+  letter-spacing: 0; /* normal */
+  transition: letter-spacing 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.smooth-spacing:hover {
+  letter-spacing: 0.1em; /* similar to tracking-widest */
+}
+@keyframes progressFlow {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@keyframes wave {
+  0% {
+    transform: rotate(0deg);
+  }
+  15% {
+    transform: rotate(14deg);
+  }
+  30% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(14deg);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+  60% {
+    transform: rotate(10deg);
+  }
+  70% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+.wave {
+  display: inline-block;
+  transform-origin: 70% 70%;
+  animation: wave 2s infinite;
+}

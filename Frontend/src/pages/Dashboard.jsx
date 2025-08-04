@@ -3,6 +3,7 @@ import { getCurrentUserApi } from "../services/auth";
 import { Progress } from "../components/ui/progress";
 import { deleteMeal } from "../services/function";
 import { Trash, Plus } from "lucide-react";
+
 import BottomBar from "../components/Shared/BottomBar";
 import {
   BarChart,
@@ -152,7 +153,7 @@ const Dashboard = () => {
             <p>No meals added today.</p>
             <button
               onClick={() => nav("/usersearch")}
-              className="mt-3 text-green-500 hover:underline"
+              className="mt-3 text-green-500 hover:underline cursor-pointer"
             >
               Add a meal now
             </button>

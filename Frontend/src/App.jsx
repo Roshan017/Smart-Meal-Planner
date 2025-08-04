@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import './index.css';
+import "./index.css";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -8,27 +8,26 @@ import Home from "./pages/Home";
 import HomeSearch from "./pages/HomeSearch";
 import MealDetail from "./pages/MealDetail";
 import Profile from "./pages/Profile";
-
+import Weekly from "./pages/Weekly";
+import Daily from "./pages/Daily";
 
 function App() {
   return (
     <>
-      
-
-
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/Search" element={<Signup />} />
-        
 
         {/* Private Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/usersearch" element={<Search />} />
-        <Route path="/meal/:id" element={<MealDetail />} /> 
+        <Route path="/meal/:id" element={<MealDetail />} />
+        <Route path="/dailyplan" element={<Daily />} />
+        <Route path="/weeklyplan" element={<Weekly />} />
       </Routes>
     </>
   );

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getCurrentUserApi } from '../../services/auth';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { getCurrentUserApi } from "../../services/auth";
+import { useNavigate } from "react-router-dom";
+import PlansDrawer from "./Plans";
 
 const MALE = "/images/male.svg";
 const FEMALE = "/images/female.png";
@@ -15,7 +16,7 @@ const Header = () => {
         const userData = await getCurrentUserApi();
         setUser(userData);
       } catch (error) {
-        console.error('Failed to fetch user:', error);
+        console.error("Failed to fetch user:", error);
       }
     };
     fetchUser();
@@ -41,14 +42,11 @@ const Header = () => {
 
       {/* NAVIGATION BAR (Hidden on small screens) */}
       <nav className="hidden md:flex flex-row gap-6 items-center">
-        <button
-          onClick={() => nav('/dashboard')}
-          className="text-gray-600 hover:text-green-500 font-medium transition cursor-pointer"
-        >
-          Plans
+        <button onClick={() => nav("/dashboard")}>
+          <PlansDrawer week={user.week_plan} daily={user.day_plan} />
         </button>
         <button
-          onClick={() => nav('/usersearch')}
+          onClick={() => nav("/usersearch")}
           className="text-gray-600 hover:text-green-500 font-medium transition cursor-pointer"
         >
           Meals
@@ -62,8 +60,8 @@ const Header = () => {
 
         {/* Profile Image */}
         <img
-          onClick={() => nav('/profile')}
-          src={gender === 'male' ? MALE : FEMALE}
+          onClick={() => nav("/profile")}
+          src={gender === "male" ? MALE : FEMALE}
           alt="Profile"
           className="w-12 h-12 rounded-full border cursor-pointer hover:scale-105 transition"
         />

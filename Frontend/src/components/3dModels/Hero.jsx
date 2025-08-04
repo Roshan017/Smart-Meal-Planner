@@ -30,7 +30,7 @@ const Hero = () => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
-  const scale = isMobile ? 1.2 : isTablet ? 1.6 : 2;
+  const scale = isMobile ? 1.5 : isTablet ? 1.7 : 2.2;
 
   return (
     <div className="w-full h-[500px]">

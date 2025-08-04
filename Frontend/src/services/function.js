@@ -2,34 +2,21 @@ import api from "./api";
 
 export const searchMeals = async (val) => {
   try {
-    const res = await api.get('/meals/search-meals', {
-      params: { title: val }   // backend expects "title"
+    const res = await api.get("/meals/search-meals", {
+      params: { title: val }, // backend expects "title"
     });
-    console.log('Meals Fetched');
+    console.log("Meals Fetched");
     return res;
   } catch (e) {
-    console.error('Error fetching meal!', e);
+    console.error("Error fetching meal!", e);
     throw e;
   }
 };
 
-export const getMeal = async(id) =>{
-    try{
-        const res = await api.get(`/meals/${id}`);  
-    console.log('Meal Details');
-    return res;
-       
-    }
-    catch(e){
-        console.error(e);
-        throw e
-    }
-}
-
-export const addMeal = async (id) => {
+export const getMeal = async (id) => {
   try {
-    const res = await api.post(`/meals/add-meal?meal_id=${id}`);
-    console.log('Meal Added');
+    const res = await api.get(`/meals/${id}`);
+    console.log("Meal Details");
     return res;
   } catch (e) {
     console.error(e);
@@ -37,15 +24,46 @@ export const addMeal = async (id) => {
   }
 };
 
-export const deleteMeal = async(id) =>{
-  try{
-
-    const res = await api.delete(`/meals/remove-meal/${id}`)
-    console.log('Meal Deleted');
-    return res
-
-  }catch(e){
-     console.error(e);
-      throw e;
+export const addMeal = async (id) => {
+  try {
+    const res = await api.post(`/meals/add-meal?meal_id=${id}`);
+    console.log("Meal Added");
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
-}
+};
+
+export const deleteMeal = async (id) => {
+  try {
+    const res = await api.delete(`/meals/remove-meal/${id}`);
+    console.log("Meal Deleted");
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const smartMeal = async (time) => {
+  try {
+    const res = await api.get(`meals/smart-plan?time_frame=${time}`);
+    console.log("Plan Generated");
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const AddsmartMeal = async (meal) => {
+  try {
+    const res = await api.post(`meals/store-smart-plan`, meal);
+    console.log("Plan Stored");
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};

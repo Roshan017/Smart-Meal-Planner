@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Input } from '../components/ui/input';
-import { searchMeals } from '../services/function';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Input } from "../components/ui/input";
+import { searchMeals } from "../services/function";
+import { useNavigate } from "react-router-dom";
+import { ArrowBigLeft } from "lucide-react";
 
 const Search = () => {
-  const [searchValue, setValue] = useState('');
+  const [searchValue, setValue] = useState("");
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -29,15 +30,28 @@ const Search = () => {
         setMeals([]);
       }
       setLoading(false);
-    }, 500); // Debounce delay 500ms
+    }, 800);
 
     return () => clearTimeout(delayDebounce);
   }, [searchValue]);
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50">
+    <div className="p-6 min-h-screen bg-gray-50 relative">
+      <button
+        onClick={() => nav(-1)}
+        className="absolute top-6 left-6 flex items-center gap-2 text-green-700 hover:text-green-900 smooth-spacing"
+      >
+        <ArrowBigLeft className="w-6 h-6" />
+        <span className="hidden sm:inline font-medium">Back</span>
+      </button>
+
       <div className="flex flex-col items-center mb-8">
-        <img src="/images/Title.png" alt="Title" className="mb-4 w-44 md:w-52" />
+        <img
+          src="/images/Title.png"
+          alt="Title"
+          className="mb-4 w-44 md:w-52"
+        />
+
         <div className="w-full max-w-md">
           <Input
             value={searchValue}
@@ -48,12 +62,10 @@ const Search = () => {
         </div>
       </div>
 
-      {/* Loading State */}
       {loading && (
         <p className="text-center text-gray-500">Searching meals...</p>
       )}
 
-      {/* Display Meals */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 px-4 md:px-0">
         {meals.map((meal) => (
           <div
@@ -66,12 +78,13 @@ const Search = () => {
               alt={meal.title}
               className="rounded-lg w-full h-40 object-cover mb-2"
             />
-            <h3 className="font-semibold text-gray-700 truncate">{meal.title}</h3>
+            <h3 className="font-semibold text-gray-700 truncate">
+              {meal.title}
+            </h3>
           </div>
         ))}
       </div>
 
-      {/* Empty Result */}
       {!loading && meals.length === 0 && searchValue.trim() && (
         <p className="text-gray-500 text-center mt-10 text-lg">
           No meals found 😔
