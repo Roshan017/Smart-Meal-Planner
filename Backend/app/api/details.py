@@ -37,27 +37,30 @@ async def set_user_details(prefs: UserDetails, current_user: dict = Depends(get_
     db = get_db()
 
     user_id = ObjectId(current_user["_id"])
+    users_collection = db['users']
+    user = await users_collection.find_one({"_id": user_id})
 
-    bmr = calculate_bmr(prefs.weight_kg, prefs.height_cm,prefs.age,prefs.gender)
+    created_date = user['created_at']  # fetched from users collection
+
+    bmr = calculate_bmr(prefs.weight_kg, prefs.height_cm, prefs.age, prefs.gender)
     tdee = bmr * activity_multiplier(prefs.activity_level)
     calorie_target = round(adjust_calories(tdee, prefs.goal))
 
+    # convert pydantic model to dict
     data = prefs.model_dump()
-
     data.update({
-        
         "bmr": bmr,
         "tdee": tdee,
-        "calorie_target": calorie_target
+        "calorie_target": calorie_target,
+        "user_id": user_id,
+        "created_at": created_date   # <-- add created date here
     })
-
-    data["user_id"] = user_id
 
     await db['user_details'].update_one(
         {"user_id": user_id},
         {"$set": data},
         upsert=True
     )
-    print("Details saved successfully")
 
+    print("Details saved successfully")
     return prefs

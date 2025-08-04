@@ -33,6 +33,8 @@ class UserPublic(BaseModel):
     email: Optional[EmailStr] = None
     age: Optional[int] = None
     gender: Optional[str] = None
+    diet: Optional[str] = None
+    created_at: Optional[datetime] = None
     activity_level: Optional[str] = None
     height_cm: Optional[int] = None
     weight_kg: Optional[int] = None
@@ -43,6 +45,7 @@ class UserPublic(BaseModel):
     day_plan: Optional[List[Dict]] = Field(default_factory=list)
     day_plan_generated_at: Optional[datetime] = None
     week_plan: Optional[Dict[str, Dict]] = Field(default_factory=dict)
+    
 
    
 class UserDetails(BaseModel):
