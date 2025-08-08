@@ -10,6 +10,8 @@ import MealDetail from "./pages/MealDetail";
 import Profile from "./pages/Profile";
 import Weekly from "./pages/Weekly";
 import Daily from "./pages/Daily";
+import Edit from "./pages/Edit";
+import Blogs from "./pages/Blogs";
 
 function App() {
   return (
@@ -24,10 +26,12 @@ function App() {
         {/* Private Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/editprofile" element={<Edit />} />
         <Route path="/usersearch" element={<Search />} />
         <Route path="/meal/:id" element={<MealDetail />} />
         <Route path="/dailyplan" element={<Daily />} />
         <Route path="/weeklyplan" element={<Weekly />} />
+        <Route path="/blogs" element={<Blogs />} />
       </Routes>
     </>
   );

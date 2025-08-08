@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getMeal, addMeal } from '../services/function';
-import { ArrowLeft } from 'lucide-react';
-
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getMeal, addMeal } from "../services/function";
+import { ArrowLeft } from "lucide-react";
+import { useMediaQuery } from "react-responsive";
 
 const MealDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [mealData, setMealData] = useState({});
   const [loading, setLoading] = useState(true);
-  
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
   const handleClick = async () => {
-  try {
-    const res = await addMeal(id);
-    console.log(res);
-    navigate('/dashboard');
-  } catch (e) {
-    
-    if (e.response && e.response.status === 400) {
-      alert("Adding this meal exceeds your calorie target");
-    } else {
-      console.error('Error adding meal:', e);
+    try {
+      const res = await addMeal(id);
+      console.log(res);
+      navigate("/dashboard");
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        alert("Adding this meal exceeds your calorie target");
+      } else {
+        console.error("Error adding meal:", e);
+      }
     }
-  }
-};
-
+  };
 
   useEffect(() => {
     const fetchMeal = async () => {
@@ -33,7 +31,7 @@ const MealDetail = () => {
         const response = await getMeal(id);
         setMealData(response.data);
       } catch (error) {
-        console.error('Error fetching meal:', error);
+        console.error("Error fetching meal:", error);
       } finally {
         setLoading(false);
       }
@@ -41,7 +39,8 @@ const MealDetail = () => {
     fetchMeal();
   }, [id]);
 
-  if (loading) return <div className="text-center text-lg mt-20">Loading...</div>;
+  if (loading)
+    return <div className="text-center text-lg mt-20">Loading...</div>;
   if (!mealData?.title)
     return <div className="text-center text-red-500 mt-20">Meal not found</div>;
 
@@ -73,7 +72,9 @@ const MealDetail = () => {
             </h1>
             <button
               onClick={handleClick}
-              className="cursor-pointer bg-green-500 hover:bg-green-600 text-white font-medium rounded-2xl py-2 px-6 shadow transition duration-300"
+              className={`cursor-pointer bg-green-500 hover:bg-green-600 text-white font-medium rounded-2xl py-2 px-6 shadow transition duration-300 ${
+                isMobile ? "h-fit ml-5 w-fit" : ""
+              }`}
             >
               Add Meal
             </button>
@@ -88,7 +89,9 @@ const MealDetail = () => {
               <tbody>
                 <tr className="border-b">
                   <td className="py-2 font-medium">Prep Time</td>
-                  <td className="py-2 text-right">{mealData.readyInMinutes} minutes</td>
+                  <td className="py-2 text-right">
+                    {mealData.readyInMinutes} minutes
+                  </td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-2 font-medium">Servings</td>
@@ -97,7 +100,7 @@ const MealDetail = () => {
                 <tr>
                   <td className="py-2 font-medium">Vegetarian</td>
                   <td className="py-2 text-right">
-                    {mealData.vegetarian ? 'Yes' : 'No'}
+                    {mealData.vegetarian ? "Yes" : "No"}
                   </td>
                 </tr>
                 <tr>
@@ -154,7 +157,9 @@ const MealDetail = () => {
 
           {/* Ingredients Section */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Ingredients</h2>
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">
+              Ingredients
+            </h2>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {mealData.ingredients?.map((ing, idx) => (
                 <li
@@ -173,9 +178,13 @@ const MealDetail = () => {
               Instructions
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-gray-600">
-              {Array.isArray(mealData.instructions)
-                ? mealData.instructions.map((step, idx) => <li key={idx}>{step}</li>)
-                : <li>{mealData.instructions}</li>}
+              {Array.isArray(mealData.instructions) ? (
+                mealData.instructions.map((step, idx) => (
+                  <li key={idx}>{step}</li>
+                ))
+              ) : (
+                <li>{mealData.instructions}</li>
+              )}
             </ol>
           </section>
         </div>

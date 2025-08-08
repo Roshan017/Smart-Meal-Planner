@@ -2,10 +2,10 @@ import api from "./api";
 
 export const loginuser = async (cred) => {
   try {
-    const res = await api.post('/auth/signin', cred);
+    const res = await api.post("/auth/signin", cred);
     console.log("User logged in successfully");
 
-    const { access_token } = res.data
+    const { access_token } = res.data;
     if (access_token) {
       localStorage.setItem("token", access_token); // ✅ Save token
     }
@@ -19,7 +19,7 @@ export const loginuser = async (cred) => {
 
 export const signupuser = async (cred) => {
   try {
-    const res = await api.post('/auth/signup', cred);
+    const res = await api.post("/auth/signup", cred);
     console.log("User signed up successfully");
     const { access_token } = res.data;
 
@@ -37,13 +37,23 @@ export const signupuser = async (cred) => {
   }
 };
 
-
 export const getCurrentUserApi = async () => {
   try {
-    const res = await api.get('/auth/me');
+    const res = await api.get("/auth/me");
     return res.data;
   } catch (error) {
     console.error("Error fetching current user:", error);
     throw error;
+  }
+};
+
+export const UpdateUser = async (cred) => {
+  try {
+    const res = api.post("/details", cred);
+    console.log("Profile Updated");
+    return res;
+  } catch (e) {
+    console.log(e);
+    throw e;
   }
 };

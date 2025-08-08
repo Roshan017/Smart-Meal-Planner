@@ -26,8 +26,6 @@ const Header = () => {
     return <div className="text-gray-500">Loading...</div>;
   }
 
-  const gender = user.gender;
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     nav("/login");
@@ -35,16 +33,13 @@ const Header = () => {
 
   return (
     <header className="flex flex-row items-center justify-between bg-white shadow px-6 py-4 rounded-lg">
-      {/* LEFT SIDE (Welcome) */}
       <h1 className="text-2xl font-bold text-gray-800">
         Welcome, {user.username || user.email}!
       </h1>
 
-      {/* NAVIGATION BAR (Hidden on small screens) */}
       <nav className="hidden md:flex flex-row gap-6 items-center">
-        <button onClick={() => nav("/dashboard")}>
-          <PlansDrawer week={user.week_plan} daily={user.day_plan} />
-        </button>
+        <PlansDrawer week={user.week_plan} daily={user.day_plan} />
+
         <button
           onClick={() => nav("/usersearch")}
           className="text-gray-600 hover:text-green-500 font-medium transition cursor-pointer"
@@ -52,18 +47,24 @@ const Header = () => {
           Meals
         </button>
         <button
+          onClick={() => nav("/blogs")}
+          className="text-gray-600 hover:text-green-500 font-medium transition cursor-pointer"
+        >
+          Blogs
+        </button>
+
+        <button
           onClick={handleLogout}
           className="text-red-500 hover:text-red-700 font-medium transition cursor-pointer"
         >
           Logout
         </button>
 
-        {/* Profile Image */}
         <img
           onClick={() => nav("/profile")}
-          src={gender === "male" ? MALE : FEMALE}
+          src={user.image_url}
           alt="Profile"
-          className="w-12 h-12 rounded-full border cursor-pointer hover:scale-105 transition"
+          className="w-14 h-12 rounded-full border cursor-pointer hover:scale-105 transition"
         />
       </nav>
     </header>
