@@ -22,13 +22,30 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
-
+class DayPlan(BaseModel):
+    meals: List[Dict]
+    nutrients: Dict
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class MealItem(BaseModel):
+    id: int
+    title: str
+    image: str
+    calories: float
+    date_added: Optional[str]  # Always ISO formatted string
+
+    class Config:
+        json_encoders = {
+            datetime: lambda dt: dt.isoformat()
+        }
+
+
+
 class UserPublic(BaseModel):
     id: Optional[str]
+    image_url: Optional[str]
     username: str
     email: Optional[EmailStr] = None
     age: Optional[int] = None
@@ -38,17 +55,26 @@ class UserPublic(BaseModel):
     activity_level: Optional[str] = None
     height_cm: Optional[int] = None
     weight_kg: Optional[int] = None
-    goal: Optional[str]  = None
+    goal: Optional[str] = None
     calorie_target: Optional[float] = None
-    selected_meals: Optional[List[Dict[str, Union[int, str, float]]]] = []
+    selected_meals: List[MealItem] = []
     cal_remaining: Optional[float] = None
-    day_plan: Optional[List[Dict]] = Field(default_factory=list)
+    
+    
+    day_plan: Optional[DayPlan] = None
     day_plan_generated_at: Optional[datetime] = None
     week_plan: Optional[Dict[str, Dict]] = Field(default_factory=dict)
-    
+
+    class Config:
+        json_encoders = {
+            ObjectId: str,
+            datetime: lambda dt: dt.isoformat()
+        }
+
 
    
 class UserDetails(BaseModel):
+    image_url: Optional[str] = None
     age: int = Field(..., ge=10, le = 100)
     gender: Literal["male", "Female", "Other"]
     height_cm: int = Field(..., gt=100)
@@ -59,7 +85,7 @@ class UserDetails(BaseModel):
     bmr: Optional[float] = None
     tdee: Optional[float] = None
     calorie_target: Optional[float] = None
-    day_plan: Optional[List[Dict]] = Field(default_factory=list)
+    day_plan: Optional[DayPlan] = None
     day_plan_generated_at: Optional[datetime] = None
     week_plan: Optional[List[Dict]] = Field(default_factory=list)
 

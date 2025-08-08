@@ -9,8 +9,12 @@ from pydantic import BaseModel, Field
 router = APIRouter()
 
 
+
+
+
+
 @router.post("/add-meal")
-async def add_meal_to_plan(meal_id:int, current_user: dict= Depends(get_current_user)):
+async def add_meal_to_plan(meal_id: int, current_user: dict = Depends(get_current_user)):
     db = get_db()
     
     user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
@@ -18,49 +22,47 @@ async def add_meal_to_plan(meal_id:int, current_user: dict= Depends(get_current_
         raise HTTPException(status_code=409, detail="Meal already added to plan.")
 
     meal = await get_meal_details_id(meal_id)
-
     if "error" in meal:
         raise HTTPException(status_code=500, detail="Failed to Fetch Meal Details")
-    
-    nutrients = meal.get("nutrition", {}).get("nutrients",[])
+
+    nutrients = meal.get("nutrition", {}).get("nutrients", [])
     cal = 0
     for nutrient in nutrients:
-        if nutrient.get("name","").lower() == "calories":
-            cal = nutrient.get("amount",0)
+        if nutrient.get("name", "").lower() == "calories":
+            cal = nutrient.get("amount", 0)
             break
-    total_calories = sum(m["calories"] for m in selected_meals)+cal
 
-    cal_remaining = 0
-
-    if total_calories == calorie_target:
-        cal_remaining = 0
-    else:
-        cal_remaining = calorie_target - total_calories
-
+    total_calories = sum(m["calories"] for m in selected_meals) + cal
 
     if total_calories > calorie_target:
-        cal_remaining = 0
         raise HTTPException(status_code=400, detail="Adding this meal exceeds your calorie target")
-    
-    meal_entry= {
+
+    cal_remaining = max(0, calorie_target - total_calories)
+
+    # Always store UTC-aware datetime
+    meal_entry = {
         "id": meal_id,
         "title": meal.get("title"),
         "image": meal.get("image"),
-        "calories": round(cal,2)
+        "calories": round(cal, 2),
+        "date_added": datetime.now(timezone.utc)
     }
+
     await db["user_details"].update_one(
         {"user_id": user_id},
         {
             "$push": {"selected_meals": meal_entry},
-            "$set": {"cal_remaining": round(cal_remaining)}
+            "$set": {"cal_remaining": round(cal_remaining, 2)}
         }
-
     )
+
     return {
         "message": "Meal added successfully.",
         "calories_used": round(total_calories, 2),
-        "calories_remaining": round(calorie_target - total_calories, 2)
-}
+        "calories_remaining": round(cal_remaining, 2)
+    }
+
+
 @router.delete("/remove-meal/{meal_id}")
 async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_current_user)):
     db = get_db()
@@ -135,7 +137,8 @@ async def weekly_plan(time_frame: str = "day",current_user : dict= Depends(get_c
 class SmartPlanRequest(BaseModel):
     time_frame: Literal["day", "week"]
     meals: Optional[List[Dict]] = Field(default_factory=list)  # for daily plan
-    week: Optional[Dict[str, Dict[str, Any]]] = None  
+    week: Optional[Dict[str, Dict[str, Any]]] = None 
+    nutrients:Optional[Dict] = None
 
 @router.post("/store-smart-plan")
 async def store_smart_plan(
@@ -151,12 +154,15 @@ async def store_smart_plan(
     update = {}
 
     if request.time_frame == "day":
-        update = {
-            "$set": {
-                "day_plan": request.meals,
-                "day_plan_generated_at": datetime.now(timezone.utc)
-            }
+       update = {
+        "$set": {
+            "day_plan": {
+                "meals": request.meals,
+                "nutrients": request.nutrients
+            },
+            "day_plan_generated_at": datetime.now(timezone.utc)
         }
+    }
     else:
         update = {
             "$set": {
