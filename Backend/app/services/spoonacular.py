@@ -77,15 +77,28 @@ async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 1
 
         async with httpx.AsyncClient() as client:
             res = await client.get(BASE_URL_SEARCH, params=params)
-            res.raise_for_status()
-            recipies = res.json().get("results",[])
-            if not recipies:
-                return {"error": "No recipies found"}
-            print("Recipes Found")
-        
-            recipies_id = [str(recipe["id"]) for recipe in recipies]
 
-            ids_param = ",".join(recipies_id)
+            try:
+                res.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                print(f"[ERROR] Search request failed: {e.response.status_code} - {e.response.text}")
+                return {"error": "Failed to fetch meal search results"}
+
+            try:
+                data = res.json()
+            except ValueError:
+                print("[ERROR] Response not in JSON format:", res.text[:500])
+                return {"error": "Invalid API response"}
+
+            recipes = data.get("results", [])
+            if not recipes:
+                print("[INFO] No recipes found")
+                return {"error": "No recipes found"}
+
+            print(f"[DEBUG] Recipes Found: {len(recipes)}")
+
+            recipe_ids = [str(recipe["id"]) for recipe in recipes]
+            ids_param = ",".join(recipe_ids)
 
             bulk_params = {
                 "apiKey": API_KEY,
@@ -93,35 +106,45 @@ async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 1
                 "includeNutrition": True
             }
 
-            bulk_res = await client.get(info_bulk_url,params=bulk_params)
+            bulk_res = await client.get(info_bulk_url, params=bulk_params)
 
-            bulk_res.raise_for_status()
-            detailed_recipes = bulk_res.json()
+            try:
+                bulk_res.raise_for_status()
+            except httpx.HTTPStatusError as e:
+                print(f"[ERROR] Bulk info request failed: {e.response.status_code} - {e.response.text}")
+                return {"error": "Failed to fetch detailed meal info"}
+
+            try:
+                detailed_recipes = bulk_res.json()
+            except ValueError:
+                print("[ERROR] Bulk response not in JSON format:", bulk_res.text[:500])
+                return {"error": "Invalid bulk API response"}
 
         result = []
         for recipe in detailed_recipes:
-                nutrients = recipe.get("nutrition", {}).get("nutrients", [])
-                macros = {
-                    "Calories": next((n["amount"] for n in nutrients if n["name"] == "Calories"), 0),
-                    "Carbs": next((n["amount"] for n in nutrients if n["name"] == "Carbohydrates"), 0),
-                    "Fats": next((n["amount"] for n in nutrients if n["name"] == "Fat"), 0),
-                    "Protein": next((n["amount"] for n in nutrients if n["name"] == "Protein"), 0),
-                   
-                }
+            nutrients = recipe.get("nutrition", {}).get("nutrients", [])
+            macros = {
+                "Calories": next((n["amount"] for n in nutrients if n["name"] == "Calories"), 0),
+                "Carbs": next((n["amount"] for n in nutrients if n["name"] == "Carbohydrates"), 0),
+                "Fats": next((n["amount"] for n in nutrients if n["name"] == "Fat"), 0),
+                "Protein": next((n["amount"] for n in nutrients if n["name"] == "Protein"), 0),
+            }
 
-                result.append({
-                    "id": recipe["id"],
-                    "title": recipe["title"],
-                    "image": recipe["image"],
-                    "macros": macros,
-                    "dish_type": recipe["dishTypes"][:3]
-                })
-        print("Recipe Modified")
+            result.append({
+                "id": recipe.get("id"),
+                "title": recipe.get("title"),
+                "image": recipe.get("image"),
+                "macros": macros,
+                "dish_type": recipe.get("dishTypes", [])[:3]
+            })
+
+        print(f"[DEBUG] Recipes processed: {len(result)}")
         return result
 
-    except httpx.HTTPStatusError as e:
-        print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
-        return {"error": "Failed to fetch meals. Please try again later."}
+    except Exception as e:
+        print(f"[FATAL] Unexpected error: {e}")
+        return {"error": "An unexpected error occurred"}
+
 
 async def get_meal_details_id(meal_id: int):
 
