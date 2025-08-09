@@ -3,6 +3,7 @@ import { Input } from "../components/ui/input";
 import { searchMeals } from "../services/function";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigLeft } from "lucide-react";
+import Rec from "../components/Shared/Rec";
 
 const Search = () => {
   const [searchValue, setValue] = useState("");
@@ -66,29 +67,36 @@ const Search = () => {
         <p className="text-center text-gray-500">Searching meals...</p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 px-4 md:px-0">
-        {meals.map((meal) => (
-          <div
-            key={meal.id}
-            onClick={() => nav(`/meal/${meal.id}`)}
-            className="rounded-lg bg-white border shadow hover:shadow-xl transition-transform transform hover:-translate-y-1 p-3 cursor-pointer"
-          >
-            <img
-              src={meal.image}
-              alt={meal.title}
-              className="rounded-lg w-full h-40 object-cover mb-2"
-            />
-            <h3 className="font-semibold text-gray-700 truncate">
-              {meal.title}
-            </h3>
+      {searchValue.trim() ? (
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 px-4 md:px-0">
+            {meals.map((meal) => (
+              <div
+                key={meal.id}
+                onClick={() => nav(`/meal/${meal.id}`)}
+                className="rounded-lg bg-white border shadow hover:shadow-xl transition-transform transform hover:-translate-y-1 p-3 cursor-pointer"
+              >
+                <img
+                  src={meal.image}
+                  alt={meal.title}
+                  className="rounded-lg w-full h-40 object-cover mb-2"
+                />
+                <h3 className="font-semibold text-gray-700 truncate">
+                  {meal.title}
+                </h3>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {!loading && meals.length === 0 && searchValue.trim() && (
-        <p className="text-gray-500 text-center mt-10 text-lg">
-          No meals found 😔
-        </p>
+          {!loading && meals.length === 0 && (
+            <p className="text-gray-500 text-center mt-10 text-lg">
+              No meals found 😔
+            </p>
+          )}
+        </>
+      ) : (
+        // Only show Rec if search is empty
+        <Rec />
       )}
     </div>
   );

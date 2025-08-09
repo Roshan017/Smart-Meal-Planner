@@ -3,16 +3,18 @@ import { AddsmartMeal, smartMeal } from "../services/function";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUserApi } from "../services/auth";
 import MealCard from "../components/Shared/MealCard";
+import DashLoader from "../components/Shared/DashLoader";
+import Button from "../components/Shared/Button";
 
 const WeeklyPlan = () => {
   const nav = useNavigate();
 
   const [weeklyPlan, setWeeklyPlan] = useState({});
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(true); // page loading
   const [newPlanPreview, setNewPlanPreview] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false); // loader for create new plan
 
   // Fetch user's existing weekly plan on mount
   useEffect(() => {
@@ -32,12 +34,15 @@ const WeeklyPlan = () => {
 
   // Generate new plan using API
   const handleCreateNewPlan = async () => {
+    setGenerating(true); // show loader
     try {
       const response = await smartMeal("week");
       const generatedWeek = response?.data?.week;
 
       if (!generatedWeek || typeof generatedWeek !== "object") {
-        return alert("No week plan found in response!");
+        alert("No week plan found in response!");
+        setGenerating(false);
+        return;
       }
 
       setNewPlanPreview(generatedWeek);
@@ -45,6 +50,8 @@ const WeeklyPlan = () => {
     } catch (e) {
       console.error("Error generating new plan:", e);
       alert("Failed to generate new meal plan");
+    } finally {
+      setGenerating(false); // hide loader
     }
   };
 
@@ -104,6 +111,12 @@ const WeeklyPlan = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
+      {generating && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 flex justify-center items-center z-50">
+          <DashLoader />
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         {Object.keys(weeklyPlan).length > 0 ? (
           <>
@@ -126,13 +139,11 @@ const WeeklyPlan = () => {
           </>
         ) : (
           <div className="text-center text-gray-500 mt-20">
-            <p className="text-lg mb-4">No Weekly Plan Found 😔</p>
-            <button
+            <Button
+              title="Create New Plan"
               onClick={handleCreateNewPlan}
-              className="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition shadow"
-            >
-              Create New Plan
-            </button>
+              sub={"No Weekly Plan Found"}
+            />
           </div>
         )}
       </div>

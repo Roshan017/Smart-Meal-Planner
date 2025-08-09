@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getCurrentUserApi, UpdateUser } from "../services/auth";
 import { useNavigate } from "react-router-dom";
+import Warning from "../components/Shared/Warning";
 
 const Edit = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -66,8 +68,13 @@ const Edit = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setShowConfirm(true); // show confirmation popup instead of direct update
+  };
+
+  const confirmUpdate = async () => {
+    setShowConfirm(false);
     setLoading(true);
     try {
       await UpdateUser(formData);
@@ -89,7 +96,7 @@ const Edit = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-8">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-8 relative">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-5xl"
@@ -274,6 +281,15 @@ const Edit = () => {
           </p>
         )}
       </form>
+
+      {/* Confirmation Popup */}
+      {showConfirm && (
+        <Warning
+          show={showConfirm}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={confirmUpdate}
+        />
+      )}
     </div>
   );
 };

@@ -67,3 +67,14 @@ export const AddsmartMeal = async (meal) => {
     throw e;
   }
 };
+
+export const RecMeals = async () => {
+  try {
+    const res = await api.get(`meals/generate-meal-plan`);
+    console.log("Recommendations Fetched");
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};

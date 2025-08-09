@@ -3,13 +3,15 @@ import { Sun, CloudSun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUserApi } from "../services/auth";
 import { AddsmartMeal, smartMeal } from "../services/function";
+import Button from "../components/Shared/Button";
+import DashLoader from "../components/Shared/DashLoader";
 
 const DailyPlan = () => {
   const nav = useNavigate();
   const [dailyPlan, setDailyPlan] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showStoreButton, setShowStoreButton] = useState(false);
+  const [creating, setCreating] = useState(false); // Loader for Create New Plan
 
   const fetchUser = async () => {
     try {
@@ -24,8 +26,6 @@ const DailyPlan = () => {
     } catch (error) {
       console.error("Failed to fetch user:", error);
       setDailyPlan({});
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -34,6 +34,7 @@ const DailyPlan = () => {
   }, []);
 
   const handleCreateNewPlan = async () => {
+    setCreating(true); // Show loader
     try {
       const response = await smartMeal("day");
       if (response?.data?.meals) {
@@ -49,6 +50,8 @@ const DailyPlan = () => {
     } catch (e) {
       console.error("Failed to generate new plan:", e);
       alert("Failed to generate new meal plan");
+    } finally {
+      setCreating(false); // Hide loader
     }
   };
 
@@ -71,24 +74,19 @@ const DailyPlan = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-500">Loading Daily Plan...</div>
-    );
+  if (creating) {
+    return <DashLoader />; // Show loader only during plan creation
   }
 
   if (!dailyPlan || Object.keys(dailyPlan).length === 0) {
     return (
       <div className="p-6 text-center text-gray-500">
-        No Daily Plan Found 😔
         <div className="mt-6">
-          <button
+          <Button
+            title="Create New Plan"
             onClick={handleCreateNewPlan}
-            disabled={saving}
-            className="bg-green-600 text-white px-8 py-3 rounded-2xl hover:bg-green-700 transition"
-          >
-            {saving ? "Creating..." : "Create New Plan"}
-          </button>
+            sub={"No Daily Plan Found 😔"}
+          />
         </div>
       </div>
     );
@@ -96,7 +94,6 @@ const DailyPlan = () => {
 
   const meals = dailyPlan.meals || [];
   const nutrients = dailyPlan.nutrients || {};
-
   const mealLabels = ["Breakfast", "Lunch", "Dinner"];
   const mealIcons = [<Sun />, <CloudSun />, <Moon />];
 

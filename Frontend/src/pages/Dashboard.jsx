@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getCurrentUserApi } from "../services/auth";
 import { Progress } from "../components/ui/progress";
 import { deleteMeal } from "../services/function";
-import { Trash, Plus } from "lucide-react";
-
+import { Trash, Plus, Lock } from "lucide-react";
 import BottomBar from "../components/Shared/BottomBar";
 import {
   BarChart,
@@ -15,10 +14,35 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Shared/Header";
+import DashLoader from "../components/Shared/DashLoader";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const nav = useNavigate();
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      const start = Date.now();
+      try {
+        const userData = await getCurrentUserApi();
+        setUser(userData);
+
+        const elapsed = Date.now() - start;
+        const remaining = 2500 - elapsed;
+        if (remaining > 0) {
+          setTimeout(() => setLoading(false), remaining);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, []);
 
   const deleteMealHandler = async (id) => {
     try {
@@ -27,7 +51,6 @@ const Dashboard = () => {
 
       await deleteMeal(id);
 
-      // Remove meal and recalculate calories locally
       setUser((prev) => {
         const updatedMeals = prev.selected_meals.filter(
           (meal) => meal.id !== id
@@ -51,33 +74,22 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await getCurrentUserApi();
-        setUser(userData);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  if (!user) return <div className="p-6">Loading...</div>;
-  console.log(user);
+  if (loading) return <DashLoader />;
 
   const consumed = user.calorie_target - user.cal_remaining;
-  const weeklyData = Object.entries(user.week_plan).map(([day, data]) => ({
-    name: day.charAt(0).toUpperCase() + day.slice(1),
-    calories: data.nutrients.calories,
-    protein: data.nutrients.protein,
-    fat: data.nutrients.fat,
-    carbs: data.nutrients.carbohydrates,
-  }));
+  const weeklyData =
+    user.week_plan && Object.keys(user.week_plan).length > 0
+      ? Object.entries(user.week_plan).map(([day, data]) => ({
+          name: day.charAt(0).toUpperCase() + day.slice(1),
+          calories: data.nutrients.calories,
+          protein: data.nutrients.protein,
+          fat: data.nutrients.fat,
+          carbs: data.nutrients.carbohydrates,
+        }))
+      : [];
 
   return (
     <div className="p-6 text-gray-800">
-      {/* HEADER */}
       <Header />
 
       {/* SUMMARY CARDS */}
@@ -96,7 +108,11 @@ const Dashboard = () => {
         </div>
         <div className="p-4 rounded-lg shadow bg-white">
           <h2 className="text-sm font-semibold">Activity Level</h2>
-          <p className="text-xl capitalize">{user.activity_level}</p>
+          <p className="text-xl capitalize">
+            {user.activity_level === "very_active"
+              ? "Very Active"
+              : user.activity_level}
+          </p>
         </div>
       </div>
 
@@ -164,15 +180,26 @@ const Dashboard = () => {
       {/* WEEKLY CHART */}
       <div className="bg-white p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Weekly Calorie Intake</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={weeklyData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="calories" fill="#4ade80" />
-          </BarChart>
-        </ResponsiveContainer>
+        {weeklyData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={weeklyData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="calories" fill="#4ade80" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex flex-col gap-2 justify-center items-center text-gray-400 py-12">
+            <Lock className="w-12 h-12 mb-2" />
+            <p className="text-sm">Weekly plan not available</p>
+            <p className="text-sm text-green-500">
+              <a href="/weeklyplan">Generate Now</a>
+            </p>
+          </div>
+        )}
       </div>
+
       <BottomBar />
     </div>
   );

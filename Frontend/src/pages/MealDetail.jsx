@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getMeal, addMeal } from "../services/function";
 import { ArrowLeft } from "lucide-react";
 import { useMediaQuery } from "react-responsive";
-
+import DashLoader from "../components/Shared/DashLoader";
 const MealDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,8 +39,7 @@ const MealDetail = () => {
     fetchMeal();
   }, [id]);
 
-  if (loading)
-    return <div className="text-center text-lg mt-20">Loading...</div>;
+  if (loading) return <DashLoader />;
   if (!mealData?.title)
     return <div className="text-center text-red-500 mt-20">Meal not found</div>;
 
