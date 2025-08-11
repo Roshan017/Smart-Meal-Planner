@@ -62,7 +62,7 @@ const Header = () => {
 
         <img
           onClick={() => nav("/profile")}
-          src={user.image_url}
+          src={user.image_url || (user.gender === "male" ? MALE : FEMALE)}
           alt="Profile"
           className="w-14 h-12 rounded-full border cursor-pointer hover:scale-105 transition"
         />

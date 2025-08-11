@@ -17,6 +17,7 @@ const Edit = () => {
     weight_kg: "",
     activity_level: "",
     goal: "",
+    cuisine: "",
     dietary_preferences: "",
     other_diet_info: "",
     image_url: "",
@@ -29,6 +30,7 @@ const Edit = () => {
       try {
         const currentUser = await getCurrentUserApi();
         setUser(currentUser);
+        console.log(currentUser);
         setFormData({
           age: currentUser.age || "",
           gender: currentUser.gender || "",
@@ -36,7 +38,8 @@ const Edit = () => {
           weight_kg: currentUser.weight_kg || "",
           activity_level: currentUser.activity_level || "",
           goal: currentUser.goal || "",
-          dietary_preferences: currentUser.dietary_preferences || "",
+          dietary_preferences: currentUser.diet || "",
+          cuisine: currentUser.cuisine || "",
           other_diet_info: currentUser.other_diet_info || "",
           image_url: currentUser.image_url || "",
         });
@@ -77,6 +80,7 @@ const Edit = () => {
     setShowConfirm(false);
     setLoading(true);
     try {
+      console.log(formData);
       await UpdateUser(formData);
       setSuccessMsg("Profile updated successfully!");
       setTimeout(() => navigate("/profile"), 1500);
@@ -238,11 +242,29 @@ const Edit = () => {
                   onChange={handleChange}
                   className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
-                  <option value="vegetarian">Vegetarian</option>
-                  <option value="non-vegetarian">Non-Vegetarian</option>
+                  <option value="">-- Select Diet --</option>
+                  <option value="Vegetarian">Vegetarian</option>
+                  <option value="Whole30">Non-Vegetarian</option>
                   <option value="Ketogenic">Ketogenic</option>
                   <option value="Paleo">Paleo</option>
                   <option value="Gluten Free">Gluten Free</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium">Cuisine</label>
+                <select
+                  name="cuisine"
+                  value={formData.cuisine}
+                  onChange={handleChange}
+                  className="mt-1 w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
+                >
+                  <option value="">-- Select Cuisine --</option>
+                  <option value="Indian">Indian</option>
+                  <option value="British">British</option>
+                  <option value="Chinese">Chinese</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Mexican">Mexican</option>
+                  <option value="American">American</option>
                 </select>
               </div>
 

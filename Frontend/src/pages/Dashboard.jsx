@@ -4,6 +4,7 @@ import { Progress } from "../components/ui/progress";
 import { deleteMeal } from "../services/function";
 import { Trash, Plus, Lock } from "lucide-react";
 import BottomBar from "../components/Shared/BottomBar";
+import Details from "../components/Shared/Details";
 import {
   BarChart,
   Bar,
@@ -19,6 +20,7 @@ import DashLoader from "../components/Shared/DashLoader";
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [details, setDetails] = useState(true);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -26,6 +28,9 @@ const Dashboard = () => {
       const start = Date.now();
       try {
         const userData = await getCurrentUserApi();
+        if (userData.age == null) {
+          setDetails(false);
+        }
         setUser(userData);
 
         const elapsed = Date.now() - start;
@@ -73,7 +78,8 @@ const Dashboard = () => {
       console.error(e);
     }
   };
-
+  console.log(user);
+  if (!details) return <Details />;
   if (loading) return <DashLoader />;
 
   const consumed = user.calorie_target - user.cal_remaining;

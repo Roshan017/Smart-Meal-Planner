@@ -118,8 +118,8 @@ const Login = () => {
     // --- Desktop Layout (your old design) ---
     <section className="relative flex h-screen fc-bg-primary text-white overflow-hidden">
       <div
-        className={`absolute top-12 z-30 flex justify-center items-center
-        w-65 gap-2 border-[3px] border-[#ffffff]/41 h-35 bg-[#000000]/20 rounded-tl-[23px] rounded-tr-[15px] rounded-br-[103px] rounded-bl-[0px] left-21.5`}
+        className={`absolute top-15 z-30 flex justify-center items-center
+        w-65 gap-2 border-[3px] border-[#ffffff]/41 h-35 bg-[#000000]/20 rounded-tl-[23px] rounded-tr-[15px] rounded-br-[103px] rounded-bl-[0px] left-25`}
       >
         <img
           src="/images/Title.png"

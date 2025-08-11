@@ -13,7 +13,7 @@ import {
   Hash,
   ArrowBigLeft,
 } from "lucide-react";
-
+import DashLoader from "../components/Shared/DashLoader";
 import ProfileCard from "../components/ui/ProfileCard";
 
 const Profile = () => {
@@ -32,12 +32,9 @@ const Profile = () => {
     fetchUser();
   }, []);
 
-  if (!user)
-    return (
-      <div className="flex items-center justify-center h-screen text-gray-500">
-        Loading...
-      </div>
-    );
+  if (!user) return <DashLoader />;
+
+  console.log(user);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex flex-col items-center px-4 sm:px-6 py-10 justify-center relative">
@@ -140,7 +137,7 @@ const Profile = () => {
               icon={<Mail className="w-6 h-6 text-green-600" />}
               label="Diet"
               valueClassName="capitalize"
-              value={user.diet === "Whole30" ? "Non-veg" : "Veg"}
+              value={user.diet === "Whole30" ? "Non-veg" : user.diet}
             />
             <ProfileCard
               icon={<Target className="w-6 h-6 text-green-600" />}

@@ -122,11 +122,14 @@ const Signup = () => {
   ) : (
     // --- Desktop Layout (your old design) ---
     <section className="relative flex h-screen fc-bg-primary text-white overflow-hidden">
-      <div className="absolute top-18 left-29 z-30 flex items-center gap-2">
+      <div
+        className={`absolute top-15 z-30 flex justify-center items-center
+        w-65 gap-2 border-[3px] border-[#ffffff]/41 h-35 bg-[#000000]/20 rounded-tl-[23px] rounded-tr-[15px] rounded-br-[103px] rounded-bl-[0px] left-25`}
+      >
         <img
           src="/images/Title.png"
           alt="ForkCast Logo"
-          className="h-20 md:h-10 w-100%"
+          className="h-auto md:h-16 w-auto relative right-2.5 bottom-1"
         />
       </div>
 
