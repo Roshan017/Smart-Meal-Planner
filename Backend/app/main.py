@@ -16,11 +16,15 @@ app = FastAPI(lifespan=lifespan)
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Frontend URL
+    allow_origins=[
+        "http://localhost:5173",             # Local frontend (dev)
+        "https://forkcast1.netlify.app"      # Production frontend (Netlify)
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+
 
 # Routers
 app.include_router(auth.router, prefix="/api/auth")
