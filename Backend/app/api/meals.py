@@ -100,8 +100,9 @@ async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_cur
 @router.get("/generate-meal-plan")
 async def generate_meal_plan(current_user: dict = Depends(get_current_user)):
     db = get_db()
-    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
-    res = await get_meal_plan(calorie_target=calorie_target, diet=diet)
+    user_id, prefs, calorie_target,cuisine, diet, selected_meals,  = await get_details(current_user=current_user, db=db)
+    print( 'This is the Cuisine:', cuisine)
+    res = await get_meal_plan(calorie_target=calorie_target, diet=diet, cuisine=cuisine)
 
     if "error" in res:
         raise HTTPException(

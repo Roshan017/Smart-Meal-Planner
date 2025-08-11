@@ -51,6 +51,7 @@ class UserPublic(BaseModel):
     age: Optional[int] = None
     gender: Optional[str] = None
     diet: Optional[str] = None
+    cuisine: Optional[str] = None
     created_at: Optional[datetime] = None
     activity_level: Optional[str] = None
     height_cm: Optional[int] = None
@@ -76,11 +77,12 @@ class UserPublic(BaseModel):
 class UserDetails(BaseModel):
     image_url: Optional[str] = None
     age: int = Field(..., ge=10, le = 100)
-    gender: Literal["male", "Female", "Other"]
+    gender: Literal["male", "Female"]
     height_cm: int = Field(..., gt=100)
     weight_kg: int = Field(...,gt = 5)
     activity_level: Literal["sedentary", "light", "moderate", "active", "very_active"]
     goal: Literal["Maintain", "Lose-Weight", "Gain-Weight"]
+    cuisine: Optional[str] = None
     dietary_preferences: Optional[str] = None
     bmr: Optional[float] = None
     tdee: Optional[float] = None

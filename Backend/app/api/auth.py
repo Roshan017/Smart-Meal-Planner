@@ -159,12 +159,13 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
     return {
         "id": str(current_user["_id"]),
-        "image_url": details["image_url"],
+        "image_url": details.get("image_url", None),
         "username": current_user["username"],
         "email": current_user.get("email"),
         "age": details.get("age"),
         "gender": details.get("gender"),
         "diet": details.get("dietary_preferences"),
+        "cuisine": details.get("cuisine"),
         "activity_level": details.get("activity_level"),
         "height_cm": details.get("height_cm"),
         "weight_kg": details.get("weight_kg"),

@@ -60,7 +60,7 @@ async def get_weekly_plan(calorie_target: float, diet: str = None, timeFrame: st
         return {"error": "Failed to fetch meals. Please try again later."}
 
 
-async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 10):
+async def get_meal_plan(calorie_target: float, diet: str = None, cuisine: str = None, number: int = 5):
     try:
         params = {
             "apiKey": API_KEY,
@@ -69,11 +69,14 @@ async def get_meal_plan(calorie_target: float, diet: str = None, number: int = 1
             "number": number,
             "addRecipeInformation": True,
             "instructionsRequired": True,
-            "includeNutrition": True
+            "includeNutrition": True,
+            
         }
 
         if diet:
             params["diet"] = diet
+        if cuisine:
+            params["cuisine"] = cuisine
 
         async with httpx.AsyncClient() as client:
             res = await client.get(BASE_URL_SEARCH, params=params)

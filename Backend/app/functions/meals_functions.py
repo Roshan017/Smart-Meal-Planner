@@ -17,7 +17,9 @@ async def get_details(current_user, db):
         
 
     calorie_target = prefs.get("calorie_target", 2000)
+    cuisine = prefs.get("cuisine")  # optional
+    print(cuisine)
     diet = prefs.get("dietary_preferences")  # optional
     selected_meals = prefs.get("selected_meals", [])  # optional
 
-    return user_id, prefs, calorie_target, diet, selected_meals
+    return user_id, prefs, calorie_target, cuisine, diet, selected_meals
