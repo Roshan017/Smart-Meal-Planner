@@ -66,7 +66,7 @@ async def add_meal_to_plan(meal_id: int, current_user: dict = Depends(get_curren
 @router.delete("/remove-meal/{meal_id}")
 async def remove_meal_from_plan(meal_id:int, current_user: dict= Depends(get_current_user)):
     db = get_db()
-    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+    user_id, prefs, calorie_target,cuisine, diet, selected_meals,  = await get_details(current_user=current_user, db=db)
     meal_to_remove = next((meal for meal in selected_meals if meal["id"]== meal_id), None )
 
     if not meal_to_remove:
