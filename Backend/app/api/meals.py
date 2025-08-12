@@ -17,7 +17,7 @@ router = APIRouter()
 async def add_meal_to_plan(meal_id: int, current_user: dict = Depends(get_current_user)):
     db = get_db()
     
-    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+    user_id, prefs, calorie_target,cuisine, diet, selected_meals,  = await get_details(current_user=current_user, db=db)
     if any(meal["id"] == meal_id for meal in selected_meals):
         raise HTTPException(status_code=409, detail="Meal already added to plan.")
 
@@ -120,7 +120,7 @@ async def generate_meal_plan(current_user: dict = Depends(get_current_user)):
 @router.get("/smart-plan")
 async def weekly_plan(time_frame: str = "day",current_user : dict= Depends(get_current_user)):
     db = get_db()
-    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+    user_id, prefs, calorie_target,cuisine, diet, selected_meals,  = await get_details(current_user=current_user, db=db)
 
     res = await get_weekly_plan(calorie_target = calorie_target, diet = diet, timeFrame=time_frame)
     if time_frame not in ["day", "week"]:
@@ -147,7 +147,7 @@ async def store_smart_plan(
     current_user: dict = Depends(get_current_user)
 ):
     db = get_db()
-    user_id, prefs, calorie_target, diet, selected_meals = await get_details(current_user=current_user, db=db)
+    user_id, prefs, calorie_target,cuisine, diet, selected_meals,  = await get_details(current_user=current_user, db=db)
 
     if request.time_frame not in ["day", "week"]:
         raise HTTPException(status_code=400, detail="Select Valid Plan i.e day or week")
